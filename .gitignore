@@ -19,6 +19,7 @@
 # misc
 .DS_Store
 *.pem
+frontend/node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node
 
 # debug
 npm-debug.log*
