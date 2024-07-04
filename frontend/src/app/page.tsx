@@ -20,8 +20,8 @@ const HomePage: React.FC = () => {
       </header>
       <main className="flex-1 bg-background text-foreground py-6 px-4">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-          <MyCard title="22kt Gold Price" price={6750} date={date} />
-          <MyCard title="24kt Gold Price" price={62.2} date={date} />
+          <MyCard title="22kt Gold Price" price={6649} date={date} />
+          <MyCard title="24kt Gold Price" price={7249} date={date} />
         </div>
         <div className="container mx-auto mt-6">
           <div className="bg-card rounded-lg shadow-lg p-6">

@@ -9,7 +9,7 @@ interface PriceCardProps {
 
 const PriceCard: React.FC<PriceCardProps> = ({ title, price, date }) => {
     return (
-        <div className="bg-card rounded-lg shadow-lg p-8">
+        <div className="bg-card rounded-lg shadow-xl p-8">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <div className="text-5xl font-bold mb-2">
       ₹<span className="text-primary">{price.toFixed(2)}</span>
