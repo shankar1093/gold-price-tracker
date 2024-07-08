@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   frontend:
     build:
@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: "production"
+      HOSTNAME: "0.0.0.0"
+      BACKEND_URL: "http://backend:8080"
     ports:
       - "3000:3000"
     restart: "always"
@@ -15,6 +17,8 @@ services:
       # - ./frontend/:/app
       - /app/node_modules
     command: ["node", "server.js"]
+    networks:
+      - app-network
   backend:
     build:
       context: backend/gold_price_service
@@ -28,3 +32,9 @@ services:
     volumes:
       - /usr/src/app/target
     command: ["/usr/local/bin/gold_price_service"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
