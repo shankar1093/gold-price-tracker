@@ -4,7 +4,7 @@ import MyCard from '../components/price_cards';
 import TimeseriesChart from '../components/price_series_chart';
 
 const HomePage: React.FC = () => {
-  const date = new Date().toLocaleDateString();
+  const date = new Date().toLocaleDateString("en-IN");
 
   return (
     <div className="flex flex-col min-h-screen">
