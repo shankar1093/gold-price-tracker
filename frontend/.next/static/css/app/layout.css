@@ -720,11 +720,9 @@ video {
     transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
   }
 }
-
 .hover\:underline:hover {
   text-decoration-line: underline;
 }
-
 @media (min-width: 768px) {
 
   .md\:grid-cols-2 {

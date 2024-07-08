@@ -27,7 +27,7 @@ const HomePage: React.FC = () => {
           <div className="bg-card rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4">Gold Price Trends</h2>
             <div className="w-full h-[300px]">
-              <TimeseriesChart width={200} height={200} />
+              <TimeseriesChart className="chart"/>
             </div>
           </div>
         </div>
