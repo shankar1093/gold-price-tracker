@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+  backend:
+    build:
+      context: backend/gold_price_service
+      dockerfile: Dockerfile
+    environment:
+      RUST_LOG: "info"
+    ports:
+      - "8080:8080"
+    restart: "always"
+    working_dir: /usr/src/app
+    volumes:
+      - ./backend/gold_price_service/target:/usr/src/app/target
+    command: ["/usr/local/bin/gold_price_service"]
+    networks:
+      - app-network
+
   frontend:
     build:
       context: frontend/
@@ -13,27 +29,12 @@ services:
     restart: "always"
     working_dir: /app
     volumes:
-      # Use node_modules from the image
       # - ./frontend/:/app
       - /app/node_modules
     command: ["node", "server.js"]
     networks:
       - app-network
-  backend:
-    build:
-      context: backend/gold_price_service
-      dockerfile: Dockerfile
-    environment:
-      RUST_LOG: "info"
-    ports:
-      - "8080:8080"
-    restart: "always"
-    working_dir: /usr/src/app
-    volumes:
-      - /usr/src/app/target
-    command: ["/usr/local/bin/gold_price_service"]
-    networks:
-      - app-network
+
 
 networks:
   app-network:
