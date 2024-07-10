@@ -8,16 +8,16 @@ IMAGE_NAME=gold-price-tracker
 
 build-fe: .
 		docker pull public.ecr.aws/docker/library/node:16-buster
-		docker build -f frontend/Dockerfile -t $(IMAGE_NAME)-fe:$(COMMIT_HASH) -t $(IMAGE_NAME)-fe:latest frontend
+		docker build -f frontend/Dockerfile -t $(IMAGE_NAME)-frontend:$(COMMIT_HASH) -t $(IMAGE_NAME)-frontend:latest frontend
 
 build-be: .
-		docker build -f backend/gold_price_service/Dockerfile -t $(IMAGE_NAME)-be:$(COMMIT_HASH) -t $(IMAGE_NAME)-be:latest backend/gold_price_service
+		docker build -f backend/gold_price_service/Dockerfile -t $(IMAGE_NAME)-backend:$(COMMIT_HASH) -t $(IMAGE_NAME)-backend:latest backend/gold_price_service
 
 push: .
-		docker tag $(IMAGE_NAME):latest 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker:latest
-		docker push 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-fe:latest
-		docker push 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-be:latest
-
+		docker tag $(IMAGE_NAME)-frontend:latest 263095946180.dkr.ecr.ap-south-1.amazonaws.com/$(IMAGE_NAME)-frontend:latest
+		docker tag $(IMAGE_NAME)-backend:latest 263095946180.dkr.ecr.ap-south-1.amazonaws.com/$(IMAGE_NAME)-backend:latest
+		docker push 263095946180.dkr.ecr.ap-south-1.amazonaws.com/$(IMAGE_NAME)-frontend:latest
+		docker push 263095946180.dkr.ecr.ap-south-1.amazonaws.com/$(IMAGE_NAME)-backend:latest
 
 deploy: login build push
 
