@@ -1,9 +1,6 @@
-// src/app/page.tsx
-
 import React from 'react';
 import Link from 'next/link';
-import MyCard from '../components/price_cards';
-import TimeseriesChart from '../components/price_series_chart';
+import MainContent from './MainContent';
 
 interface HomePageProps {
   gold22kt: number;
@@ -12,27 +9,37 @@ interface HomePageProps {
 }
 
 const fetchGoldData = async (): Promise<HomePageProps> => {
-  let gold995WithGST = null;
-  try {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-    const res = await fetch(`${backendUrl}/gold_price`); // Ensure the URL is correct and accessible from the server
-    const data = await res.json();
-    // There is a space in the description string at the end
-    gold995WithGST = data.find((item: { description: string }) => item.description === 'GOLD 995 WITH GST ');
-    console.log('Gold price data:', gold995WithGST)
-  } catch (error) {
-    console.error('Error fetching gold price data:', error);
-  }
+  // let gold995WithGST = null;
+  // try {
+  //   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+  //   const res = await fetch(`${backendUrl}/gold_price`);
+  //   const data = await res.json();
+  //   gold995WithGST = data.find((item: { description: string }) => item.description === 'GOLD 995 WITH GST ');
+  // } catch (error) {
+  //   console.error('Error fetching gold price data:', error);
+  // }
 
-  const gold24ktPrice = gold995WithGST && !isNaN(parseFloat(gold995WithGST.bid)) ? parseFloat(gold995WithGST.bid)/10 : 7200;
-  const gold22ktPrice = !isNaN(gold24ktPrice) ? (916 / 995) * gold24ktPrice : 6500;
+  // const gold24ktPrice = gold995WithGST && !isNaN(parseFloat(gold995WithGST.bid)) ? parseFloat(gold995WithGST.bid) / 10 : 7200;
+  // const gold22ktPrice = !isNaN(gold24ktPrice) ? (916 / 995) * gold24ktPrice: 6500;
 
-  return {
-    gold22kt: gold22ktPrice,
-    gold24kt: gold24ktPrice,
-    date: new Date().toLocaleDateString("en-IN"),
+  // return {
+  //   gold22kt: gold22ktPrice,
+  //   gold24kt: gold24ktPrice,
+  //   date: new Date().toLocaleDateString("en-IN"),
+  // };
+  
+    try {
+      const res = await fetch('/api/gold_price');
+      return await res.json();
+    } catch (error) {
+      console.error('Error fetching gold price data:', error);
+      return {
+        gold22kt: 6500,
+        gold24kt: 7200,
+        date: new Date().toLocaleDateString("en-IN"),
+      };
+    }
   };
-};
 
 const HomePage = async () => {
   const data = await fetchGoldData();
@@ -49,21 +56,10 @@ const HomePage = async () => {
           </div>
         </div>
       </header>
-      <main className="flex-1 bg-background text-foreground py-6 px-4">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-          <MyCard title="22kt Gold Price" price={data?.gold22kt} date={data?.date} />
-          <MyCard title="24kt Gold Price" price={data?.gold24kt} date={data?.date} />
-        </div>
-        <div className="container mx-auto mt-6">
-          <div className="bg-card rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Gold Price Trends</h2>
-            <div className="w-full h-[300px]">
-              <TimeseriesChart className="chart" />
-            </div>
-          </div>
-        </div>
+      <main className="flex-1 bg-background text-foreground py-6 px-4 flex flex-col justify-center">
+        <MainContent {...data} />
       </main>
-      <footer className="bg-muted text-muted-foreground py-2 px-4">
+      <footer className="bg-muted text-muted-foreground py-2 px-4 flex-col justify-center">
         <div className="container mx-auto flex items-center justify-between">
           <p className="text-xs">&copy; 2024 Mangalore Jewellery Works</p>
           <div className="flex items-center gap-2">
