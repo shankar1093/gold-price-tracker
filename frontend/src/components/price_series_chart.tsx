@@ -10,25 +10,13 @@ const TimeseriesChart: React.FC<{ className: string }> = (props) => {
           {
             id: 'Desktop',
             data: [
-              { x: '2018-01-01', y: 7 },
-              { x: '2018-01-02', y: 5 },
-              { x: '2018-01-03', y: 11 },
-              { x: '2018-01-04', y: 9 },
-              { x: '2018-01-05', y: 12 },
-              { x: '2018-01-06', y: 16 },
-              { x: '2018-01-07', y: 13 },
-            ],
-          },
-          {
-            id: 'Mobile',
-            data: [
-              { x: '2018-01-01', y: 9 },
-              { x: '2018-01-02', y: 8 },
-              { x: '2018-01-03', y: 13 },
-              { x: '2018-01-04', y: 6 },
-              { x: '2018-01-05', y: 8 },
-              { x: '2018-01-06', y: 14 },
-              { x: '2018-01-07', y: 11 },
+              { x: '2024-07-02', y: 7414 },
+              { x: '2024-06-03', y: 7510 },
+              { x: '2024-05-04', y: 7312 },
+              { x: '2024-04-05', y: 7320 },
+              { x: '2024-03-06', y: 6800 },
+              { x: '2024-02-07', y: 6400 },
+              { x: '2024-01-08', y: 6300 },
             ],
           },
         ]}
@@ -37,12 +25,12 @@ const TimeseriesChart: React.FC<{ className: string }> = (props) => {
           type: 'time',
           format: '%Y-%m-%d',
           useUTC: false,
-          precision: 'day',
+          precision: 'month',
         }}
         xFormat="time:%Y-%m-%d"
         yScale={{
           type: 'linear',
-          min: 0,
+          min: 4000,
           max: 'auto',
         }}
         axisTop={null}
@@ -51,7 +39,7 @@ const TimeseriesChart: React.FC<{ className: string }> = (props) => {
           tickSize: 0,
           tickPadding: 16,
           format: '%d',
-          tickValues: 'every 1 day',
+          tickValues: 'every 1 month',
         }}
         axisLeft={{
           tickSize: 0,
