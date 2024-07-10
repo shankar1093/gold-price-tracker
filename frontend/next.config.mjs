@@ -1,8 +1,10 @@
 // next.config.mjs
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
+  output: 'standalone',
+  env: {
+    BACKEND_URL: process.env.BACKEND_URL,
+  },
 };
-  
+
 export default nextConfig;
