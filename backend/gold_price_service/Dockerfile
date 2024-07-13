@@ -29,4 +29,4 @@ COPY --from=builder /usr/src/app/target/release/gold_price_service /usr/local/bi
 EXPOSE 8080
 
 # Run the binary
-CMD ["gold_price_service"]
+CMD ["/usr/local/bin/gold_price_service"]
