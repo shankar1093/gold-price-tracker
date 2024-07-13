@@ -5,6 +5,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let gold995WithGST = null;
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
+    console.log('backendUrl:', backendUrl)
     const response = await fetch(`${backendUrl}/gold_price`);
     const data = await response.json();
     gold995WithGST = data.find((item: { description: string; }) => item.description === 'GOLD 995 WITH GST ');
