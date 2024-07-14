@@ -17,10 +17,26 @@ frontend/.env*
 # production
 /build
 
+# django 
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static/
+*.log
+local_settings.py
+
 # misc
 .DS_Store
 *.pem
 frontend/node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node
+backend/mjw_py_backend/
 
 # debug
 npm-debug.log*
