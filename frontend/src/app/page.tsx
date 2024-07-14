@@ -9,25 +9,6 @@ interface HomePageProps {
 }
 
 const fetchGoldData = async (): Promise<HomePageProps> => {
-  // let gold995WithGST = null;
-  // try {
-  //   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-  //   const res = await fetch(`${backendUrl}/gold_price`);
-  //   const data = await res.json();
-  //   gold995WithGST = data.find((item: { description: string }) => item.description === 'GOLD 995 WITH GST ');
-  // } catch (error) {
-  //   console.error('Error fetching gold price data:', error);
-  // }
-
-  // const gold24ktPrice = gold995WithGST && !isNaN(parseFloat(gold995WithGST.bid)) ? parseFloat(gold995WithGST.bid) / 10 : 7200;
-  // const gold22ktPrice = !isNaN(gold24ktPrice) ? (916 / 995) * gold24ktPrice: 6500;
-
-  // return {
-  //   gold22kt: gold22ktPrice,
-  //   gold24kt: gold24ktPrice,
-  //   date: new Date().toLocaleDateString("en-IN"),
-  // };
-  
     try {
       const res = await fetch('/api/gold_price');
       return await res.json();
