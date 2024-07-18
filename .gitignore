@@ -97,3 +97,4 @@ Cargo.lock
 
 # Ignoring node_modules if you have a frontend in the same repository
 node_modules/
+frontend/node_modules/*
