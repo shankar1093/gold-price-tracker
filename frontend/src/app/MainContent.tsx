@@ -17,8 +17,8 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   } catch (error) {
     console.error('Error fetching gold price data:', error);
     return {
-      gold22kt: 6500,
-      gold24kt: 7200,
+      gold22kt: 0,
+      gold24kt: 0,
       date: new Date().toLocaleDateString("en-IN"),
     };
   }
@@ -67,12 +67,12 @@ const MainContent = ({ gold22kt, gold24kt, date }: HomePageProps) => {
           <MyCard title="24kt Gold Price" price={data.gold24kt} date={data.date} />
         </div>
         <div className="container mx-auto mt-6 flex-grow flex flex-col justify-center">
-          <div className="bg-card rounded-lg shadow-lg p-6 flex-grow flex flex-col justify-center mb-4">
+          {/* <div className="bg-card rounded-lg shadow-lg p-6 flex-grow flex flex-col justify-center mb-4"> */}
             <h2 className="text-xl font-bold mb-4">Gold Price Trends</h2>
-            <div className="w-full h-[300px] flex-grow">
+            {/* <div className="w-full h-[300px] flex-grow"> */}
               <TimeseriesChart className="chart" />
-            </div>
-          </div>
+            {/* </div> */}
+          {/* </div> */}
         </div>
       </main>
     </div>

@@ -15,8 +15,8 @@ const fetchGoldData = async (): Promise<HomePageProps> => {
     } catch (error) {
       console.error('Error fetching gold price data:', error);
       return {
-        gold22kt: 6500,
-        gold24kt: 7200,
+        gold22kt: 0,
+        gold24kt: 0,
         date: new Date().toLocaleDateString("en-IN"),
       };
     }
