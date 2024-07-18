@@ -1,3 +1,4 @@
+const {nextui} = require('@nextui-org/theme');
 import { fontFamily } from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
@@ -5,6 +6,8 @@ export default {
   content: [
     "./src/components/*.{js,ts,jsx,tsx}",
     "./src/app/*.{js,ts,jsx,tsx}",
+    "./src/pages/*.{js,ts,jsx,tsx}",
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
     extend: {
@@ -69,5 +72,6 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  darkMode: "class",
+  plugins: [require('tailwindcss-animate'),nextui()],
 };
