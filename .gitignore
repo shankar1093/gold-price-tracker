@@ -14,6 +14,7 @@
 frontend/.next/
 frontend/out/
 frontend/.env*
+frontend/node_modules/
 # production
 /build
 
@@ -97,4 +98,3 @@ Cargo.lock
 
 # Ignoring node_modules if you have a frontend in the same repository
 node_modules/
-frontend/node_modules/*
