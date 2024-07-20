@@ -1,0 +1,92 @@
+{
+    "family": "gold-price-tracker",
+    "containerDefinitions": [
+        {
+            "name": "backend",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-backend:latest",
+            "cpu": 128,
+            "memory": 256,
+            "portMappings": [
+                {
+                    "name": "backend-8080-tcp",
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "RUST_LOG",
+                    "value": "info"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "backend"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "frontend",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest",
+            "cpu": 128,
+            "memory": 256,
+            "portMappings": [
+                {
+                    "name": "frontend-3000-tcp",
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "HOSTNAME",
+                    "value": "0.0.0.0"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "BACKEND_URL",
+                    "value": "http://backend:8080"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "frontend"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "executionRoleArn": "arn:aws:iam::263095946180:role/ecsTaskExecutionRole",
+    "cpu": "256",
+    "memory": "512",
+    "requiresCompatibilities": ["EC2"],
+    "networkConfiguration": {
+        "awsvpcConfiguration": {
+            "subnets": ["subnet-0967d4049ba6c55fd", "subnet-00785d6c964df9555","subnet-05da23c69d39d6fa5","subnet-0aae4483cc160d31d"],  
+            "securityGroups": ["sg-92bdf5fa"], 
+            "assignPublicIp": "ENABLED"
+        }
+    },
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}
