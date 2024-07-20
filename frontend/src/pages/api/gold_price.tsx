@@ -16,6 +16,7 @@ function price_adjustment(price: number) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let gold995WithGST = null;
   try {
+    // use localhost:8080 if deploying on FARGATE via ECS
     const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
     const response = await fetch(`${backendUrl}/gold_price`);
     const data = await response.json();
