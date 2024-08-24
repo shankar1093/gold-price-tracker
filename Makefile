@@ -22,7 +22,7 @@ push: login
 deploy: login build update-ecs
 
 update-ecs: 
-	aws ecs update-service --cluster mjw-prod --service mjw-retail-gold-tracker --force-new-deployment
+	aws ecs update-service --cluster mjw-prod --service mjw-counter-price --force-new-deployment
 
 build: build-fe build-be
 
