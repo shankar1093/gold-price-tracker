@@ -68,8 +68,20 @@ export default {
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out"
+        "accordion-up": "accordion-up 0.1s ease-out"
       },
+      brightness: {
+        '70': '.7',
+      },
+      scale: {
+        '70': '0.7',
+      },
+    },
+  },
+  variants: {
+    extend: {
+      scale: ['hover', 'focus'],
+      brightness: ['hover', 'focus'],
     },
   },
   darkMode: "class",
