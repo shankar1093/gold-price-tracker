@@ -37,10 +37,10 @@ const HomePage = async () => {
           </div>
         </div>
       </header>
-      <main className="flex-1 bg-background text-foreground py-6 px-4 flex flex-col justify-center">
-        <MainContent {...data} />
-      </main>
-      <footer className="bg-muted text-muted-foreground py-2 px-4 flex-col justify-center">
+
+      <MainContent {...data} />
+
+      <footer className="bg-muted text-muted-foreground py-2 px-4">
         <div className="container mx-auto flex items-center justify-between">
           <p className="text-xs">&copy; 2024 Mangalore Jewellery Works</p>
           <div className="flex items-center gap-2">
