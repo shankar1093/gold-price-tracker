@@ -12,6 +12,7 @@ const TimeseriesChart: React.FC<{ className: string }> = (props) => {
             {
               id: 'Desktop',
               data: [
+                { x: '2024-08-02', y: 7175 },
                 { x: '2024-07-02', y: 7375 },
                 { x: '2024-06-03', y: 7228 },
                 { x: '2024-05-04', y: 7276 },
