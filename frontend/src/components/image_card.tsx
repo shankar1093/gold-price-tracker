@@ -22,8 +22,9 @@ const ImageCard: React.FC<{ className?: string }> = (props) => {
     fetchImages();
 
     const handleResize = () => {
-      if (sliderRef.current) {
-        sliderRef.current.slickGoTo(sliderRef.current.innerSlider.state.currentSlide);
+      if (sliderRef.current && sliderRef.current.innerSlider) {
+        const innerSlider = sliderRef.current.innerSlider as any; // Type assertion
+        sliderRef.current.slickGoTo(innerSlider.state.currentSlide);
       }
     };
 

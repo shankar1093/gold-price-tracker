@@ -29,9 +29,9 @@ const HomePage = async () => {
     <div className="flex flex-col min-h-screen">
       <header className="bg-primary text-primary-foreground py-2 px-4">
         <div className="container mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold">Mangalore Jewellery Works</h1>
+          <h1 className="text-2xl font-bold py-4">Mangalore Jewellery Works</h1>
           <div className="flex items-center gap-2">
-            <Link href="#" className="hover:underline" prefetch={false}>
+            <Link href="#" className="hover:underline text-2xl" prefetch={false}>
               Contact
             </Link>
           </div>
@@ -40,7 +40,7 @@ const HomePage = async () => {
 
       <MainContent {...data} />
 
-      <footer className="bg-muted text-muted-foreground py-2 px-4">
+      <footer className="bg-muted text-muted-foreground py-4 px-4">
         <div className="container mx-auto flex items-center justify-between">
           <p className="text-xs">&copy; 2024 Mangalore Jewellery Works</p>
           <div className="flex items-center gap-2">
