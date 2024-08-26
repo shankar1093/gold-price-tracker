@@ -33,10 +33,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const gold24ktPrice = gold995WithGST && !isNaN(parseFloat(gold995WithGST.ask)) ? parseFloat(gold995WithGST.ask) / 10 : 0;
   const gold22ktPrice = !isNaN(gold24ktPrice) ? (916 / 995) * gold24ktPrice : 0;
 
-  const adjustedGold22ktPrice = price_adjustment(gold22ktPrice);
-  const adjustedGold24ktPrice = price_adjustment(gold24ktPrice);
+  const adjustedGold22ktPrice = price_adjustment(gold22ktPrice) * 1.013; // Increased by 1.3%
+  const adjustedGold24ktPrice = price_adjustment(gold24ktPrice) * 1.013; // Increased by 1.3%
   
-
   res.status(200).json({
     gold22kt: adjustedGold22ktPrice,
     gold24kt: adjustedGold24ktPrice,
