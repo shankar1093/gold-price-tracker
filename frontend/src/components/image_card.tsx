@@ -4,10 +4,16 @@ import { Image } from "@nextui-org/image";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
-const ImageCard: React.FC<{ className?: string }> = (props) => {
+interface ImageCardProps {
+  className?: string;
+  style?: React.CSSProperties; 
+}
+
+const ImageCard: React.FC<ImageCardProps> = (props) => {
   const [images, setImages] = useState<string[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<Slider>(null);
+  const [slidesToShow, setSlidesToShow] = useState(3);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -22,20 +28,24 @@ const ImageCard: React.FC<{ className?: string }> = (props) => {
     fetchImages();
 
     const handleResize = () => {
-      if (sliderRef.current && sliderRef.current.innerSlider) {
-        const innerSlider = sliderRef.current.innerSlider as any; // Type assertion
-        sliderRef.current.slickGoTo(innerSlider.state.currentSlide);
+      const width = window.innerWidth;
+      const newSlidesToShow = width >= 1180 ? 3 : width >= 768 ? 2 : 1;
+      setSlidesToShow(newSlidesToShow);
+
+      if (sliderRef.current && sliderRef.current.slickGoTo) {
+        sliderRef.current.slickGoTo(currentSlide);
       }
     };
 
     window.addEventListener('resize', handleResize);
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [currentSlide]);
 
   const settings = {
     centerMode: true,
     centerPadding: '0px',
-    slidesToShow: 3,
+    slidesToShow,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
@@ -46,6 +56,22 @@ const ImageCard: React.FC<{ className?: string }> = (props) => {
     pauseOnHover: false,
     cssEase: "linear",
     afterChange: (current: number) => setCurrentSlide(current),
+    responsive: [
+      {
+        breakpoint: 1180,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        }
+      }
+    ]
   };
 
   const customPaging = useCallback(() => {
@@ -64,7 +90,7 @@ const ImageCard: React.FC<{ className?: string }> = (props) => {
   };
 
   return (
-    <div className={`w-full h-full ${props.className}`}>
+    <div className={`w-full h-full ${props.className}`} style={props.style}>
       {images.length > 0 ? (
         <Slider ref={sliderRef} {...settings} className="h-full" customPaging={customPaging}>
           {images.map((image, index) => (

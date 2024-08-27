@@ -4,6 +4,9 @@ import React, { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { cn } from '../../lib/utils';
 import './globals.css';
+import Footer from '../components/footer'; 
+import Header from '../components/header'; 
+
 
 const fontHeading = Inter({
   subsets: ['latin'],
@@ -21,20 +24,18 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
-      <body 
-        className={cn(
-          'antialiased',
-          fontHeading.variable,
-          fontBody.variable
-        )}
-      >
-        {children}
+      <body className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex flex-col">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
 };
 
-export default Layout;
+export default RootLayout;
