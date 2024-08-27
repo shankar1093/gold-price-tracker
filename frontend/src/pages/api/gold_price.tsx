@@ -20,10 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
     const response = await fetch(`${backendUrl}/gold_price`);
     const data = await response.json();
-    
+    console.log(data);
     // Updated to match only on "Gold 995(1KG) INDIAN-BIS"
     gold995WithGST = data.find((item: { description: string; }) => 
-      item.description.startsWith('Gold 995(1KG) INDIAN-BIS')
+      item.description.startsWith('GOLD 995 (1kg) INDIAN-BIS')
     );
   } catch (error) {
     console.error('Error fetching gold price data:', error);
