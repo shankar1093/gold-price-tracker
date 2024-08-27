@@ -65,3 +65,45 @@ cd frontend
 npm install
 npm start
 ```
+
+## Updating the Frontend and Backend Versions
+
+To update the versions of the frontend and backend services, follow these steps:
+
+1. **Connect to the EC2 Instance**:
+   - Use SSH to connect to your EC2 instance where the Docker containers are running.
+
+   ```sh
+   ssh -i your-key.pem ec2-user@your-ec2-instance-ip
+   ```
+
+2. **Stop the Running Docker Container**:
+   - List the running containers to find the relevant ones.
+
+   ```sh
+   docker ps
+   ```
+
+   - Stop the running containers.
+
+   ```sh
+   docker stop <container_id>
+   ```
+
+3. **Remove the Docker Images**:
+   - Remove the existing Docker images for the frontend and backend.
+
+   ```sh
+   docker rmi <frontend_image_name>
+   docker rmi <backend_image_name>
+   ```
+
+4. **Force Update the Service from the ECS Console**:
+   - Go to the AWS Management Console and navigate to the ECS service.
+   - Select your cluster and then the service you want to update.
+   - Click on the "Update" button and choose "Force new deployment" to apply the changes.
+
+5. **Verify the Update**:
+   - After the deployment is complete, check the logs and ensure that the new versions are running correctly.
+
+**Note:** The above update process is temporary. We aim to automate the version update procedure in the future to streamline deployments and reduce manual intervention.
