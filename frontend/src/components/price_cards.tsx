@@ -9,7 +9,7 @@ interface PriceCardProps {
 }
 
 const PriceCard: React.FC<PriceCardProps> = ({ title, price, date }) => {
-  const displayPrice = isNaN(Number(price)) ? 'N/A' : Math.floor(price);
+  const displayPrice = isNaN(Number(price)) ? 'N/A' : Math.floor(price || 0);
 
   return (
       <Card className="flex-1 min-w-[300px] m-2 h-[200px]"> 
