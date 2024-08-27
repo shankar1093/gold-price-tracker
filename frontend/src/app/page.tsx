@@ -8,23 +8,8 @@ interface HomePageProps {
   date: string;
 }
 
-const fetchGoldData = async (): Promise<HomePageProps> => {
-    try {
-      const res = await fetch('/api/gold_price');
-      return await res.json();
-    } catch (error) {
-      console.error('Error fetching gold price data:', error);
-      return {
-        gold22kt: 0,
-        gold24kt: 0,
-        date: new Date().toLocaleDateString("en-IN"),
-      };
-    }
-  };
 
 const HomePage = async () => {
-  const data = await fetchGoldData();
-
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-primary text-primary-foreground py-2 px-4">
@@ -38,7 +23,7 @@ const HomePage = async () => {
         </div>
       </header>
 
-      <MainContent {...data} />
+      <MainContent gold22kt={0} gold24kt={0} date={new Date().toLocaleDateString("en-IN")} />
 
       <footer className="bg-muted text-muted-foreground py-4 px-4">
         <div className="container mx-auto flex items-center justify-between">
