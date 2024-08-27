@@ -59,19 +59,15 @@ const MainContent: React.FC<HomePageProps> = ({ gold22kt, gold24kt, date }) => {
   }, [data]);
 
   return (
-    <main className="flex-1 bg-background text-foreground p-4 flex flex-col overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 mt-4">
-        <div className="mt-4"> 
-          <MyCard title="22kt Gold Price" price={data.gold22kt} date={date} />
-        </div>
-        <div className="mt-4"> 
-          <MyCard title="24kt Gold Price" price={data.gold24kt} date={date} />
-        </div>
+    <main className="flex flex-col min-h-screen">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+        <MyCard title="22kt Gold Price" price={data.gold22kt} date={date} />
+        <MyCard title="24kt Gold Price" price={data.gold24kt} date={date} />
       </div>
-      <div className="flex-1 flex flex-col min-h-0 mt-8">
-        <h2 className="text-2xl font-bold mb-2 text-center">Our Jewellery</h2> 
-        <div className="flex-1 relative mt-7" style={{ minHeight: '300px' }}>
-          <ImageCard className="absolute inset-0" />
+      <div className="flex-grow flex flex-col p-4">
+        <h2 className="text-2xl font-bold mb-4 text-center">Our Jewellery</h2>
+        <div className="flex-grow">
+          <ImageCard className="w-full h-full" />
         </div>
       </div>
     </main>
