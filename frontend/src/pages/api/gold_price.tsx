@@ -2,15 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 function price_adjustment(price: number) {
-  let rounding_val = price % 100;
-  if (rounding_val > 75) {
-    price = price - rounding_val + 100;
-  } else if (rounding_val > 25) { // Adjusted condition to correctly check the value
-    price = price - rounding_val + 50;
-  } else {
-    price = price - rounding_val;
-  }
-  return price;
+  return Math.round(price / 5) * 5;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -20,11 +12,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
     const response = await fetch(`${backendUrl}/gold_price`);
     const data = await response.json();
-    console.log(data);
+    console.log(data[6].description.toLowerCase());
     // Updated to match only on "Gold 995(1KG) INDIAN-BIS"
-    gold995WithGST = data.find((item: { description: string; }) => 
-      item.description.toLowerCase().startsWith('gold 995 (1kg) indian-bis')
-    );
+    gold995WithGST = data.find((item: { description: string; }) => {
+      const desc = item.description.toLowerCase().replace(/\s+/g, ' ').trim();
+      return desc.includes('gold 995') && 
+             desc.includes('1kg') && 
+             desc.includes('indian') && 
+             desc.includes('bis');
+    });
   } catch (error) {
     console.error('Error fetching gold price data:', error);
     return res.status(500).json({ error: 'Error fetching gold price data' });
@@ -33,8 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const gold24ktPrice = gold995WithGST && !isNaN(parseFloat(gold995WithGST.ask)) ? parseFloat(gold995WithGST.ask) / 10 : 0;
   const gold22ktPrice = !isNaN(gold24ktPrice) ? (916 / 995) * gold24ktPrice : 0;
 
-  const adjustedGold22ktPrice = price_adjustment(gold22ktPrice*1.013) // Increased by 1.3%
-  const adjustedGold24ktPrice = price_adjustment(gold24ktPrice*1.013) // Increased by 1.3%
+  const adjustedGold22ktPrice = price_adjustment(gold22ktPrice*1.015) // Increased by 1.3%
+  const adjustedGold24ktPrice = price_adjustment(gold24ktPrice*1.015) // Increased by 1.3%
   
   res.status(200).json({
     gold22kt: adjustedGold22ktPrice,

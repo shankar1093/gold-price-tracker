@@ -10,7 +10,6 @@ interface HomePageProps {
   date: string;
 }
 
-
 const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   try {
     const res = await fetch('/api/gold_price');
@@ -27,36 +26,45 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
 
 const MainContent: React.FC<HomePageProps> = ({ gold22kt, gold24kt, date }) => {
   const [data, setData] = useState<HomePageProps>({ gold22kt, gold24kt, date });
+
   useEffect(() => {
-    const refreshData = async () => {
-      const newData = await fetchGoldDataFromServer();
-      setData(newData);
+    const fetchAndUpdateData = async () => {
+      const cachedData = getCachedData();
+      if (cachedData) {
+        setData(cachedData);
+      } else {
+        const newData = await fetchGoldDataFromServer();
+        setData(newData);
+        cacheData(newData);
+      }
     };
 
-    // Immediate refresh after 2 seconds on startup
-    const timeoutId = setTimeout(refreshData, 2000);
-    // Calculate time until next 9 AM
-    const now = new Date();
-    const nextNineAM = new Date(now);
-    nextNineAM.setHours(9, 0, 0, 0); // Set time to 9 AM today
+    const scheduleNextUpdate = () => {
+      const now = new Date();
+      const nextUpdate = new Date(now);
+      nextUpdate.setHours(9, 0, 0, 0);
+      
+      if (now >= nextUpdate) {
+        nextUpdate.setDate(nextUpdate.getDate() + 1);
+      }
 
-    if (now.getHours() >= 9) {
-      nextNineAM.setDate(nextNineAM.getDate() + 1); // If it's past 9 AM today, set to 9 AM tomorrow
-    }
+      const msUntilNextUpdate = nextUpdate.getTime() - now.getTime();
+      return setTimeout(() => {
+        fetchAndUpdateData();
+        scheduleNextUpdate();
+      }, msUntilNextUpdate);
+    };
 
-    const msUntilNineAM = nextNineAM.getTime() - now.getTime();
+    // Fetch data immediately on mount
+    fetchAndUpdateData();
 
-    // Refresh at next 9 AM and then every 24 hours
-    const dailyTimeoutId = setTimeout(() => {
-      refreshData();
-      setInterval(refreshData, 24 * 60 * 60 * 1000); // Refresh every 24 hours
-    }, msUntilNineAM);
+    // Schedule next update
+    const timeoutId = scheduleNextUpdate();
 
     return () => {
       clearTimeout(timeoutId);
-      clearTimeout(dailyTimeoutId);
     };
-  }, [data]);
+  }, []);
 
   return (
     <main className="flex flex-col min-h-screen">
@@ -73,5 +81,24 @@ const MainContent: React.FC<HomePageProps> = ({ gold22kt, gold24kt, date }) => {
     </main>
   );
 };
+
+function getCachedData(): HomePageProps | null {
+  const cachedString = localStorage.getItem('goldPriceData');
+  if (!cachedString) return null;
+
+  const cached = JSON.parse(cachedString);
+  const cachedDate = new Date(cached.date);
+  const today = new Date();
+
+  if (cachedDate.toDateString() === today.toDateString() && today.getHours() < 9) {
+    return cached;
+  }
+
+  return null;
+}
+
+function cacheData(data: HomePageProps) {
+  localStorage.setItem('goldPriceData', JSON.stringify(data));
+}
 
 export default MainContent;
