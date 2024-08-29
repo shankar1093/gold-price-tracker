@@ -10,7 +10,7 @@ AWS_ACCOUNT_ID=263095946180
 
 build-fe: 
 	docker pull public.ecr.aws/docker/library/node:16-buster
-	docker buildx build --platform linux/amd64 -f frontend/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:latest --push frontend
+	docker buildx build --no-cache --platform linux/amd64 -f frontend/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:latest --push frontend
 
 build-be: 
 	docker buildx build --platform linux/amd64 -f backend/gold_price_service/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-backend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-backend:latest --push backend/gold_price_service
