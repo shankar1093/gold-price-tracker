@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(data);
     // Updated to match only on "Gold 995(1KG) INDIAN-BIS"
     gold995WithGST = data.find((item: { description: string; }) => 
-      item.description.startsWith('GOLD 995 (1kg) INDIAN-BIS')
+      item.description.toLowerCase().startsWith('gold 995 (1kg) indian-bis')
     );
   } catch (error) {
     console.error('Error fetching gold price data:', error);
