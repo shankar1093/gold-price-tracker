@@ -27,10 +27,8 @@ frontend/node_modules/
 *.pyd
 *.sqlite3
 db.sqlite3
-media/
-staticfiles/
-static/
-*.log
+db.sqlite3-journal
+__pycache__/
 local_settings.py
 
 # misc
@@ -98,3 +96,41 @@ Cargo.lock
 
 # Ignoring node_modules if you have a frontend in the same repository
 node_modules/
+
+# Ignore all .env files
+*.env
+
+# Ignore specific virtual environment directory
+backend/.venv_mjw_py/
+
+# Ignore common virtual environment names (optional, but recommended)
+venv/
+env/
+.venv/
+
+# Ignore migrations for gold_rate_admin app
+backend/mjw_services/gold_rate_admin/migrations/
+
+# Python
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
