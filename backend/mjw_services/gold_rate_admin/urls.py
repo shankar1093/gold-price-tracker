@@ -1,7 +1,6 @@
 from django.urls import path
-
-from . import views
+from .views import get_gold_rate
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('gold-rate/', get_gold_rate, name='get_gold_rate'),
 ]
