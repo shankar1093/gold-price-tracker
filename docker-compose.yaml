@@ -1,6 +1,24 @@
 version: '3.8'
 services:
-  backend:
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=mjw
+      - POSTGRES_USER=rate_service
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rate_service -d mjw"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  rust_backend:
     build:
       context: backend/gold_price_service
       dockerfile: Dockerfile
@@ -15,6 +33,28 @@ services:
     command: ["/usr/local/bin/gold_price_service"]
     networks:
       - app-network
+    depends_on:
+      - db
+
+  python-backend:
+    build: ./backend/mjw_services
+    environment:
+      DATABASE_URL: postgres://rate_service:${DB_PASSWORD}@db:5432/mjw
+      POSTGRES_USER: rate_service
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mjw
+    ports:
+      - "8000:8000"
+    restart: "always"
+    working_dir: /usr/src/app
+    volumes:
+      - ./backend/mjw_services:/usr/src/app
+      - ./backend/mjw_services/wait-for-it.sh:/usr/src/app/wait-for-it.sh
+      - ./backend/mjw_services/entrypoint.sh:/usr/src/app/entrypoint.sh
+    networks:
+      - app-network
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -36,6 +76,11 @@ services:
       - app-network
 
 
+
 networks:
   app-network:
+    name: app-network
     driver: bridge
+
+volumes:
+  postgres_data:
