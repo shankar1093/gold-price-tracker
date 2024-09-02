@@ -12,8 +12,14 @@ build-fe:
 	docker pull public.ecr.aws/docker/library/node:16-buster
 	docker buildx build --no-cache --platform linux/amd64 -f frontend/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-frontend:latest --push frontend
 
-build-be: 
-	docker buildx build --platform linux/amd64 -f backend/gold_price_service/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-backend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-backend:latest --push backend/gold_price_service
+build-rust-be: 
+	docker buildx build --platform linux/amd64 -f backend/gold_price_service/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-rust-backend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-rust-backend:latest --push backend/gold_price_service
+
+build-python-be: 
+	docker buildx build --platform linux/amd64 -f backend/mjw_services/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-python-backend:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-python-backend:latest --push backend/mjw_services
+
+build-postgres:
+	docker buildx build --platform linux/amd64 -f db/Dockerfile -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-postgres:$(COMMIT_HASH) -t $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE_NAME)-postgres:latest --push db
 
 push: login
 	# Images are already pushed in the build step with the correct tags
