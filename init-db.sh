@@ -16,7 +16,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     \$\$
     BEGIN
         IF NOT EXISTS (SELECT FROM pg_user WHERE usename = 'rate_service') THEN
-            CREATE USER rate_service WITH PASSWORD '$DB_PASSWORD';
+            CREATE USER rate_service WITH PASSWORD 'p_WyfqKq3.';
         END IF;
     END
     \$\$;
