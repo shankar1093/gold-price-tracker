@@ -19,7 +19,7 @@ def price_adjustment(price):
     return int(round(price / 5) * 5)
 
 def update_gold_rate():
-    backendUrl = "http://rust_backend:8080"  # Adjust this as needed
+    backendUrl = "http://rust-backend:8080"  # Adjust this as needed
     api_url = f"{backendUrl}/gold_price"
 
     try:

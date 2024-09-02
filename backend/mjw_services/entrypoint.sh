@@ -10,8 +10,13 @@ done
 echo "Running migrations..."
 python manage.py migrate
 
-echo "Running gold_rate_update script..."
-python scripts/gold_rate_update.py
+echo "Setting up cron job for gold_rate_update script..."
+echo "0 9 * * * /usr/local/bin/python /app/scripts/gold_rate_update.py >> /var/log/cron.log 2>&1" > /etc/cron.d/gold_rate_update
+chmod 0644 /etc/cron.d/gold_rate_update
+crontab /etc/cron.d/gold_rate_update
+
+# Start cron service
+service cron start
 
 echo "Starting Django server..."
 exec "$@"
