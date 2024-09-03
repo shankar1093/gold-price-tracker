@@ -11,7 +11,7 @@ echo "Running migrations..."
 python manage.py migrate
 
 echo "Setting up cron job for gold_rate_update script..."
-echo "0 9 * * * /usr/local/bin/python /app/scripts/gold_rate_update.py >> /var/log/cron.log 2>&1" > /etc/cron.d/gold_rate_update
+echo "30 3 * * * /usr/local/bin/python /app/scripts/gold_rate_update.py >> /var/log/cron.log 2>&1" > /etc/cron.d/gold_rate_update
 chmod 0644 /etc/cron.d/gold_rate_update
 crontab /etc/cron.d/gold_rate_update
 
