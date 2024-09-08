@@ -46,7 +46,7 @@ def update_gold_rate():
         gold22ktPrice = (920 / 995) * gold24ktPrice if gold24ktPrice != 0 else 0
 
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.013)  # Increased by 1.3%
-        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.05)  # Increased by 1.3%
+        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.08)  # Increased by 1.3%
 
         today = timezone.now().date()  # Get the current date
 
