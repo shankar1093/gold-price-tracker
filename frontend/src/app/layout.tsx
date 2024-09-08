@@ -26,10 +26,10 @@ interface LayoutProps {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
-      <body className="flex flex-col min-h-screen">
+    <html lang="en" className="h-full">
+      <body className="flex flex-col min-h-screen h-full">
         <Header />
-        <main className="flex-grow flex flex-col">
+        <main className="flex-grow flex flex-col pt-8 overflow-auto">
           {children}
         </main>
         <Footer />

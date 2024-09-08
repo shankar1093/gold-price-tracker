@@ -52,7 +52,7 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
     infinite: true,
     speed: 500,
     arrows: false,
-    dots: true,
+    dots: false,
     pauseOnHover: false,
     cssEase: "linear",
     afterChange: (current: number) => setCurrentSlide(current),
