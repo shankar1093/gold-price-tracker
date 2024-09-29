@@ -21,4 +21,8 @@ until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -p "$port" -U "$POSTGRES_USE
 done
 
 >&2 echo "Postgres is up - executing command"
-exec $cmd
+if [ -n "$cmd" ]; then
+  exec $cmd
+else
+  >&2 echo "No command specified, exiting"
+fi
