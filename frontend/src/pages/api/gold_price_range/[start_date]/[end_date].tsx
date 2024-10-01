@@ -10,7 +10,11 @@ interface GoldRate {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { start_date, end_date } = req.query;
-  console.log("start_date:", start_date);
+  const api_key = req.headers['x-api-key'];
+  if (api_key !== process.env.API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
   if (!start_date || !end_date || Array.isArray(start_date) || Array.isArray(end_date)) {
     return res.status(400).json({ error: 'Invalid start_date or end_date' });
   }
@@ -35,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         rate_22kt: rate.rate_22kt,
         rate_24kt: rate.rate_24kt,
         arihant_rate_22kt: rate.arihant_rate_22kt,
-        arihant_rate_24kt: rate.arihant_rate_24kt,
+        arihant_rate_24kt: rat.arihant_rate_24kt,
       }));
     }
     else {
