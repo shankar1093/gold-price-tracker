@@ -25,3 +25,9 @@ def get_gold_rate(request):
         'arihant_rate_22kt': rate.arihant_rate_22kt,
         'arihant_rate_24kt': rate.arihant_rate_24kt,
     })
+
+def get_gold_rate_by_date_range(request, start_date, end_date):
+    rates = Rate.objects.filter(date__range=(start_date, end_date))
+    return JsonResponse({
+        'rates': list(rates.values()),
+    })
