@@ -28,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const data = await response.json();
-    console.log("Response data:", data);
 
     let responses: GoldRate[];
 
