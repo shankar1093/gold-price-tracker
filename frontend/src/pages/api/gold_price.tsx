@@ -11,13 +11,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     const response = await fetch(`${backendUrl}/gold_rate_admin/gold-rate/`);
-    console.log(backendUrl)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("Response data:", data);
 
     rate_22kt = data.rate_22kt;
     rate_24kt = data.rate_24kt;

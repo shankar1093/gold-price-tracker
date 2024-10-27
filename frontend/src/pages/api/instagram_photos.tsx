@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Fetch media from Instagram
     const response = await fetch(`https://graph.instagram.com/v12.0/${userId}/media?fields=id,media_type,media_url,thumbnail_url&access_token=${accessToken}`);
     const data = await response.json();
-
     // Check if the response contains data
     if (!data || !data.data) {
       return res.status(404).json({ error: 'No media found' });
