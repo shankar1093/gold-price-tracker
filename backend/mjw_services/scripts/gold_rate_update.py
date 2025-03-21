@@ -25,28 +25,37 @@ def update_gold_rate():
     try:
         response = requests.get(api_url)
         data = response.json()
-        gold995WithGst = next(
+        # gold995WithGst = next(
+        #     (
+        #         item
+        #         for item in data
+        #         if "gold 995 with gst" in item.get("description", "").lower()
+        #     ),
+        #     None,
+        # )
+
+        gold999WithGst = next(
             (
                 item
                 for item in data
-                if "gold 995 with gst" in item.get("description", "").lower()
+                if "gold 999 with gst" in item.get("description", "").lower()
             ),
             None,
         )
 
-        if gold995WithGst is None:
+        if gold999WithGst is None:
             raise ValueError("Couldn't find matching gold price data")
 
         gold24ktPrice = (
-            float(gold995WithGst["ask"]) / 10
-            if gold995WithGst and gold995WithGst["ask"].isdigit()
+            float(gold999WithGst["ask"]) / 10
+            if gold999WithGst and gold999WithGst["ask"].isdigit()
             else 0
         )/1.03
 
-        gold22ktPrice = (920 / 995) * gold24ktPrice if gold24ktPrice != 0 else 0
+        gold22ktPrice = (920 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
 
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.013)  # Increased by 1.3%
-        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.04)  # Increased by 4%
+        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.05)  # Increased by 4%
 
         today = timezone.now().date()  # Get the current date
 
