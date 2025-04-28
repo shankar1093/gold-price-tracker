@@ -38,7 +38,7 @@ def update_gold_rate():
             (
                 item
                 for item in data
-                if "gold 999 with gst" in item.get("description", "").lower()
+                if "gold 999 with gst" in item.get("description", "").lower() or if "gold 999 imported with gst" in item.get("description", "").lower()
             ),
             None,
         )
