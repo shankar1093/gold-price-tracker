@@ -5,13 +5,19 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      skip_build:
+        description: 'Skip building and pushing images'
+        required: false
+        type: boolean
+        default: false
 
 env:
   AWS_REGION: ap-south-1
   AWS_ACCOUNT_ID: 263095946180
   IMAGE_NAME: gold-price-tracker
   ECS_CLUSTER: mjw-prod
-  ECS_SERVICE: mjw-retail-apps-ec2
+  ECS_SERVICE: mjw-retail-micro
 
 jobs:
   deploy:
@@ -31,17 +37,21 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
+      if: ${{ !inputs.skip_build }}
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Set up Docker Buildx
+      if: ${{ !inputs.skip_build }}
       uses: docker/setup-buildx-action@v3
 
     - name: Pull Node.js base image
+      if: ${{ !inputs.skip_build }}
       run: |
         docker pull public.ecr.aws/docker/library/node:16-buster
 
     - name: Build and push Frontend image
+      if: ${{ !inputs.skip_build }}
       env:
         COMMIT_HASH: ${{ github.sha }}
       run: |
@@ -52,6 +62,7 @@ jobs:
           --push frontend
 
     - name: Build and push Rust Backend image
+      if: ${{ !inputs.skip_build }}
       env:
         COMMIT_HASH: ${{ github.sha }}
       run: |
@@ -62,6 +73,7 @@ jobs:
           --push backend/gold_price_service
 
     - name: Build and push Python Backend image
+      if: ${{ !inputs.skip_build }}
       env:
         COMMIT_HASH: ${{ github.sha }}
       run: |
@@ -72,6 +84,7 @@ jobs:
           --push backend/mjw_services
 
     - name: Build and push PostgreSQL image
+      if: ${{ !inputs.skip_build }}
       env:
         COMMIT_HASH: ${{ github.sha }}
       run: |
@@ -81,7 +94,6 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
           --push db
 
-
     - name: Force ECS Service Update
       run: |
         aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
@@ -89,7 +101,6 @@ jobs:
     - name: Wait for service stability
       run: |
         aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
-
             
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
@@ -110,9 +121,6 @@ jobs:
           # Re-enable ECS agent
           chmod +x enable_ecs.sh
           ./enable_ecs.sh
-          
-
-
 
     - name: Deployment Success Notification
       if: success()
