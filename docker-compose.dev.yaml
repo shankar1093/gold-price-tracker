@@ -1,0 +1,125 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=mjw
+      - POSTGRES_USER=rate_service
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-dev_password}
+    volumes:
+      - ./db/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rate_service -d mjw"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rust_backend:
+    build:
+      context: backend/gold_price_service
+      dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
+    environment:
+      RUST_LOG: "debug"  # More verbose logging for development
+      DATABASE_URL: postgres://rate_service:${DB_PASSWORD:-dev_password}@db:5432/mjw
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/gold_price_service:/usr/src/app
+      - ./backend/gold_price_service/target:/usr/src/app/target
+      - cargo_cache:/usr/local/cargo/registry  # Cache Cargo dependencies
+    working_dir: /usr/src/app
+    # Use cargo watch for hot reloading in development
+    command: ["cargo", "watch", "-x", "run"]
+    networks:
+      - app-network-dev
+    depends_on:
+      db:
+        condition: service_healthy
+
+  python-backend:
+    build: 
+      context: ./backend/mjw_services
+      dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
+    environment:
+      DATABASE_URL: postgres://rate_service:${DB_PASSWORD:-dev_password}@db:5432/mjw
+      POSTGRES_USER: rate_service
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+      POSTGRES_DB: mjw
+      DJANGO_DEBUG: "True"  # Enable Django debug mode
+      DJANGO_SETTINGS_MODULE: "mjw_services.settings"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/mjw_services:/usr/src/app
+      - ./backend/mjw_services/wait-for-it.sh:/usr/src/app/wait-for-it.sh
+      - ./backend/mjw_services/entrypoint.dev.sh:/usr/src/app/entrypoint.dev.sh
+    working_dir: /usr/src/app
+    networks:
+      - app-network-dev
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/usr/src/app/entrypoint.dev.sh"]
+    # Use Django's development server with auto-reload
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000", "--settings=mjw_services.settings"]
+
+  frontend:
+    build:
+      context: frontend/
+      dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
+    environment:
+      NODE_ENV: "development"
+      HOSTNAME: "0.0.0.0"
+      BACKEND_URL: "http://python-backend:8000"  # Use service name instead of localhost
+      CHOKIDAR_USEPOLLING: "true"  # Enable polling for file changes in Docker
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Anonymous volume to prevent node_modules conflicts
+      - /app/.next  # Cache Next.js build files
+    working_dir: /app
+    # Use development server with hot reloading
+    command: ["npm", "run", "dev"]
+    networks:
+      - app-network-dev
+    depends_on:
+      - python-backend
+
+  # Optional: Add a database admin tool for development
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - app-network-dev
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+  # Optional: Redis for caching/sessions in development
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network-dev
+    volumes:
+      - redis_data_dev:/data
+
+networks:
+  app-network-dev:
+    name: app-network-dev
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+  cargo_cache:

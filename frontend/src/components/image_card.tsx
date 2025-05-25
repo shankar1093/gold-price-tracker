@@ -18,11 +18,36 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        // Check if we have cached data
+        const cached = localStorage.getItem('instagram_photos');
+        const cacheTimestamp = localStorage.getItem('instagram_photos_timestamp');
+        const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+        // Use cached data if it exists and is not expired
+        if (cached && cacheTimestamp) {
+          console.log("using cached data")
+          const isExpired = Date.now() - parseInt(cacheTimestamp) > CACHE_DURATION;
+          if (!isExpired) {
+            setImages(JSON.parse(cached));
+            return;
+          }
+        }
+
+        // Fetch new data if cache is missing or expired
         const response = await fetch('/api/instagram_photos');
         const data = await response.json();
+        
+        // Update state and cache
         setImages(data);
+        localStorage.setItem('instagram_photos', JSON.stringify(data));
+        localStorage.setItem('instagram_photos_timestamp', Date.now().toString());
       } catch (error) {
         console.error('Error fetching images:', error);
+        // If fetch fails, try to use cached data as fallback
+        const cached = localStorage.getItem('instagram_photos');
+        if (cached) {
+          setImages(JSON.parse(cached));
+        }
       }
     };
     fetchImages();

@@ -19,7 +19,7 @@ def price_adjustment(price):
     return int(round(price / 5) * 5)
 
 def update_gold_rate():
-    backendUrl = "http://rust-backend:8080"  # Adjust this as needed
+    backendUrl = "http://rust_backend:8080"  # Adjust this as needed
     api_url = f"{backendUrl}/gold_price"
 
     try:
@@ -38,7 +38,7 @@ def update_gold_rate():
             (
                 item
                 for item in data
-                if "gold 999 with gst" in item.get("description", "").lower() or if "gold 999 imported with gst" in item.get("description", "").lower()
+                if "gold 999 with gst" in item.get("description", "").lower() or "gold 999 imported with gst" in item.get("description", "").lower()
             ),
             None,
         )
@@ -55,7 +55,7 @@ def update_gold_rate():
         gold22ktPrice = (920 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
 
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.013)  # Increased by 1.3%
-        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.05)  # Increased by 4%
+        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.05)  # Increased by 5%
 
         today = timezone.now().date()  # Get the current date
 

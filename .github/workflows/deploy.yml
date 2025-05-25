@@ -1,0 +1,127 @@
+# .github/workflows/deploy.yml
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  AWS_ACCOUNT_ID: 263095946180
+  IMAGE_NAME: gold-price-tracker
+  ECS_CLUSTER: mjw-prod
+  ECS_SERVICE: mjw-retail-apps-ec2
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Pull Node.js base image
+      run: |
+        docker pull public.ecr.aws/docker/library/node:16-buster
+
+    - name: Build and push Frontend image
+      env:
+        COMMIT_HASH: ${{ github.sha }}
+      run: |
+        docker buildx build --no-cache --platform linux/amd64 \
+          -f frontend/Dockerfile \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:${{ env.COMMIT_HASH }} \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:latest \
+          --push frontend
+
+    - name: Build and push Rust Backend image
+      env:
+        COMMIT_HASH: ${{ github.sha }}
+      run: |
+        docker buildx build --platform linux/amd64 \
+          -f backend/gold_price_service/Dockerfile \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-rust-backend:${{ env.COMMIT_HASH }} \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-rust-backend:latest \
+          --push backend/gold_price_service
+
+    - name: Build and push Python Backend image
+      env:
+        COMMIT_HASH: ${{ github.sha }}
+      run: |
+        docker buildx build --platform linux/amd64 \
+          -f backend/mjw_services/Dockerfile \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:${{ env.COMMIT_HASH }} \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:latest \
+          --push backend/mjw_services
+
+    - name: Build and push PostgreSQL image
+      env:
+        COMMIT_HASH: ${{ github.sha }}
+      run: |
+        docker buildx build --platform linux/amd64 \
+          -f db/Dockerfile \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:${{ env.COMMIT_HASH }} \
+          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
+          --push db
+
+    - name: Deploy to EC2 via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        script: |
+          # Navigate to deployment directory
+          cd /home/ec2-user/deployment
+          
+          # Run the cleanup script
+          chmod +x cleanup_docker.sh
+          ./cleanup_docker.sh
+          
+          # Login to ECR
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          
+          # Pull latest images
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:latest
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-rust-backend:latest
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:latest
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest
+          
+          # Re-enable ECS agent
+          chmod +x enable_ecs.sh
+          ./enable_ecs.sh
+          
+          # Wait a moment for ECS agent to start
+          sleep 10
+
+    - name: Force ECS Service Update
+      run: |
+        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
+
+    - name: Wait for service stability
+      run: |
+        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
+
+    - name: Deployment Success Notification
+      if: success()
+      run: |
+        echo "✅ Deployment successful!"
+        echo "Commit: ${{ github.sha }}"
+        echo "All images pushed to ECR with tags: ${{ github.sha }} and latest"
