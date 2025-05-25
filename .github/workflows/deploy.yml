@@ -99,7 +99,7 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           # Navigate to deployment directory
-          cd /home/ec2-user/deployment
+          cd /home/ec2-user
           
           # Run the cleanup script
           chmod +x cleanup_docker.sh
