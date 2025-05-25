@@ -24,6 +24,7 @@ def get_gold_rate(request):
         'rate_24kt': rate.rate_24kt,
         'arihant_rate_22kt': rate.arihant_rate_22kt,
         'arihant_rate_24kt': rate.arihant_rate_24kt,
+        'arihant_rate_18kt': rate.arihant_rate_24kt,
     })
 
 def get_gold_rate_by_date_range(request, start_date, end_date):
