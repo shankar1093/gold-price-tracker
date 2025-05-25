@@ -98,10 +98,6 @@ jobs:
       run: |
         aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
     
-    - name: Wait for service stability
-      run: |
-        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
-            
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -122,6 +118,11 @@ jobs:
           chmod +x enable_ecs.sh
           ./enable_ecs.sh
 
+    - name: Wait for service stability
+      run: |
+        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
+    
+            
     - name: Deployment Success Notification
       if: success()
       run: |
