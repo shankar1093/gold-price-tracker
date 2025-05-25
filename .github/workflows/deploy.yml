@@ -81,6 +81,16 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
           --push db
 
+
+    - name: Force ECS Service Update
+      run: |
+        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
+    
+    - name: Wait for service stability
+      run: |
+        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
+
+            
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -94,30 +104,15 @@ jobs:
           # Run the cleanup script
           chmod +x cleanup_docker.sh
           ./cleanup_docker.sh
-          
-          # Login to ECR
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-          
-          # Pull latest images
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:latest
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-rust-backend:latest
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:latest
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest
-          
+        
+          sleep 10 
+
           # Re-enable ECS agent
           chmod +x enable_ecs.sh
           ./enable_ecs.sh
           
-          # Wait a moment for ECS agent to start
-          sleep 10
 
-    - name: Force ECS Service Update
-      run: |
-        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
 
-    - name: Wait for service stability
-      run: |
-        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
 
     - name: Deployment Success Notification
       if: success()
