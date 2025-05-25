@@ -1,0 +1,16 @@
+FROM python:3.11
+
+# Install PostgreSQL client, cron, and curl
+RUN apt-get update && \
+    apt-get install -y postgresql-client cron curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install watchdog  # For auto-reloading
+COPY . .
+COPY entrypoint.dev.sh /usr/src/app/
+RUN chmod +x /usr/src/app/entrypoint.dev.sh
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "--settings=mjw_services.settings"]
