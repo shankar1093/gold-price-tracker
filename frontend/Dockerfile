@@ -1,4 +1,5 @@
 FROM base AS runner
+FROM base AS builder
 WORKDIR /app
 
 ENV NODE_ENV=production
