@@ -50,6 +50,22 @@ jobs:
       run: |
         docker pull public.ecr.aws/docker/library/node:16-buster
 
+    - name: Set up environment variables
+      if: ${{ !inputs.skip_build }}
+      run: |
+        # Create .env.production for frontend
+        echo "BACKEND_URL=${{ secrets.FRONTEND_BACKEND_URL }}" > frontend/.env.production
+        echo "HOSTNAME=${{ secrets.FRONTEND_HOSTNAME }}" >> frontend/.env.production
+        # Add Instagram variables
+        echo "INSTAGRAM_ACCESS_TOKEN=${{ secrets.INSTAGRAM_ACCESS_TOKEN }}" >> frontend/.env.production
+        echo "INSTAGRAM_USER_ID=${{ secrets.INSTAGRAM_USER_ID }}" >> frontend/.env.production
+        
+        # Create .env.production for mjw_services backend
+        echo "DB_PASSWORD=${{ secrets.PYTHON_DB_PASSWORD }}" > backend/mjw_services/.env.production
+        echo "POSTGRES_USER=rate_service" >> backend/mjw_services/.env.production
+        echo "POSTGRES_DB=mjw" >> backend/mjw_services/.env.production
+        echo "DATABASE_URL=postgres://rate_service:${{ secrets.PYTHON_DB_PASSWORD }}@db:5432/mjw" >> backend/mjw_services/.env.production
+
     - name: Build and push Frontend image
       if: ${{ !inputs.skip_build }}
       env:
