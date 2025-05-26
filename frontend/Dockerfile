@@ -1,5 +1,5 @@
-FROM base AS builder
-FROM base AS runner
+FROM node:18-alpine AS builder
+FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
