@@ -66,6 +66,22 @@ jobs:
         echo "POSTGRES_DB=mjw" >> backend/mjw_services/.env.production
         echo "DATABASE_URL=postgres://rate_service:${{ secrets.PYTHON_DB_PASSWORD }}@db:5432/mjw" >> backend/mjw_services/.env.production
 
+    # NEW: Clear frontend build cache and debug
+    - name: Clear frontend build cache and debug
+      if: ${{ !inputs.skip_build }}
+      run: |
+        echo "=== Clearing frontend build cache ==="
+        rm -rf frontend/.next
+        
+        echo "=== Checking Tailwind config ==="
+        cat frontend/tailwind.config.js | head -20
+        
+        echo "=== Checking PostCSS config ==="
+        cat frontend/postcss.config.js
+        
+        echo "=== Checking package.json dependencies ==="
+        cd frontend && npm list tailwindcss postcss autoprefixer || echo "Some dependencies missing"
+
     - name: Build and push Frontend image
       if: ${{ !inputs.skip_build }}
       env:
@@ -110,7 +126,6 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
           --push db
 
-
     - name: Stop containers on EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -129,7 +144,6 @@ jobs:
       run: |
         aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
         
-
     - name: Start ECS agent on EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -148,7 +162,6 @@ jobs:
       run: |
         aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
     
-            
     - name: Deployment Success Notification
       if: success()
       run: |
