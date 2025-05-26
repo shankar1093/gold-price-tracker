@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
   const userId = process.env.INSTAGRAM_USER_ID;
+
   try {
     // Fetch media from Instagram
     const response = await fetch(`https://graph.instagram.com/v22.0/${userId}/media?fields=id,media_type,media_url,thumbnail_url&access_token=${accessToken}`);

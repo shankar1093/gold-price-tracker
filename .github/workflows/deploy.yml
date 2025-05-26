@@ -94,11 +94,8 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
           --push db
 
-    - name: Force ECS Service Update
-      run: |
-        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
-    
-    - name: Deploy to EC2 via SSH
+
+    - name: Stop containers on EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -112,10 +109,23 @@ jobs:
           chmod +x cleanup_docker.sh
           ./cleanup_docker.sh
         
-          sleep 10 
+    - name: Force ECS Service Update
+      run: |
+        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
+        
 
-          # Re-enable ECS agent
-          chmod +x enable_ecs.sh
+    - name: Start ECS agent on EC2 via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        script: |
+          # Navigate to deployment directory
+          cd /home/ec2-user
+          
+          # Run the cleanup script
+          chmod +x cleanup_docker.sh
           ./enable_ecs.sh
 
     - name: Wait for service stability
