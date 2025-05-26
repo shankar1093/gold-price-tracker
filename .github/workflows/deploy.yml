@@ -80,7 +80,10 @@ jobs:
         cat frontend/postcss.config.js
         
         echo "=== Checking package.json dependencies ==="
-        cd frontend && npm list tailwindcss postcss autoprefixer || echo "Some dependencies missing"
+        cd frontend && npm list @types/react-slick || echo "react-slick types missing"
+        
+        echo "=== Installing dependencies to ensure types are available ==="
+        cd frontend && npm install
 
     - name: Build and push Frontend image
       if: ${{ !inputs.skip_build }}
