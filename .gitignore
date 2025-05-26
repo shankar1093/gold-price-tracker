@@ -99,6 +99,7 @@ node_modules/
 
 # Ignore all .env files
 *.env
+*.env.*
 
 # Ignore specific virtual environment directory
 backend/.venv_mjw_py/
