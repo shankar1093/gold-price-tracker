@@ -1,4 +1,16 @@
 FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
 FROM node:18-alpine AS runner
 WORKDIR /app
 

@@ -15,6 +15,12 @@ django.setup()
 # Now you can import your models
 from gold_rate_admin.models import Rate
 
+GOLD_999_SEARCH_TERMS = [
+    "gold 999 with gst",
+    "gold 999 imported with gst",
+    "gold 999 indian-bis with gst"
+]
+
 def price_adjustment(price):
     return int(round(price / 5) * 5)
 
@@ -38,7 +44,8 @@ def update_gold_rate():
             (
                 item
                 for item in data
-                if "gold 999 with gst" in item.get("description", "").lower() or "gold 999 imported with gst" in item.get("description", "").lower()
+                if any(term in item.get("description", "").lower() 
+                      for term in GOLD_999_SEARCH_TERMS)
             ),
             None,
         )
