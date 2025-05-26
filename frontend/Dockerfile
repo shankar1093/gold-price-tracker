@@ -19,16 +19,17 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy necessary files
-COPY --from=builder /app/public ./public
+# Copy package.json first
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
 
-# Copy the standalone directory first
+# Copy the standalone server and its dependencies
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 
-# Copy static files
+# Copy static assets - this is crucial for styling
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public directory
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
