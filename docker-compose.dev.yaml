@@ -72,9 +72,9 @@ services:
   frontend:
     build:
       context: frontend/
-      dockerfile: Dockerfile  # Create a dev-specific Dockerfile
+      dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
     environment:
-      NODE_ENV: "production"
+      NODE_ENV: "development"
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "http://python-backend:8000"  # Use service name instead of localhost
       CHOKIDAR_USEPOLLING: "true"  # Enable polling for file changes in Docker
