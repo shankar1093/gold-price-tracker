@@ -4,8 +4,8 @@ import React, { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { cn } from '../../lib/utils';
 import './globals.css';
-import Footer from '../components/footer'; 
-import Header from '../components/header'; 
+import Footer from '../components/footer';
+import Header from '../components/header';
 
 
 const fontHeading = Inter({
@@ -26,7 +26,14 @@ interface LayoutProps {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en" className="h-full">
+    <html
+      lang="en"
+      className={cn(
+        'h-full',
+        fontHeading.variable,
+        fontBody.variable
+      )}
+    >
       <body className="flex flex-col min-h-screen h-full">
         <Header />
         <main className="flex-grow flex flex-col pt-8 overflow-auto">

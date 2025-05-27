@@ -1,5 +1,5 @@
 # Use the official Rust image with Ubuntu 22.04 as a builder
-FROM rust:latest AS builder
+FROM rust:1.75-slim AS builder
 
 # Install necessary libraries for building
 RUN apt-get update && apt-get install -y libssl-dev
@@ -16,11 +16,12 @@ COPY src ./src
 # Build the project
 RUN cargo build --release
 
-# Use Ubuntu 22.04 for the final container
-FROM ubuntu:22.04
+# Use Debian Bullseye Slim for the final container
+FROM debian:bullseye-slim
 
 # Install necessary libraries for runtime
-RUN apt-get update && apt-get install -y libssl3 ca-certificates
+RUN apt-get update && apt-get install -y libssl3 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled binary from the builder stage
 COPY --from=builder /usr/src/app/target/release/gold_price_service /usr/local/bin/gold_price_service

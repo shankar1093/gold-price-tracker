@@ -1,5 +1,2 @@
 .next
 .env.development
-postcss.config.js
-postcss.config.mjs
-postcss.config.*

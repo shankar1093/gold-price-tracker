@@ -4,9 +4,8 @@ const { fontFamily } = require('tailwindcss/defaultTheme');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/components/**/*.{js,ts,jsx,tsx}",  // ✅ Added **
-    "./src/app/**/*.{js,ts,jsx,tsx}",         // ✅ Added **
-    "./src/pages/**/*.{js,ts,jsx,tsx}",       // ✅ Added **
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",  // ✅ Correct path
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",         // ✅ Correct path
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {

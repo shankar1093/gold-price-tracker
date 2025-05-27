@@ -68,12 +68,13 @@ services:
     # Use Django's development server with auto-reload
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000", "--settings=mjw_services.settings"]
 
+
   frontend:
     build:
       context: frontend/
-      dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
+      dockerfile: Dockerfile  # Create a dev-specific Dockerfile
     environment:
-      NODE_ENV: "development"
+      NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "http://python-backend:8000"  # Use service name instead of localhost
       CHOKIDAR_USEPOLLING: "true"  # Enable polling for file changes in Docker
@@ -86,7 +87,7 @@ services:
       - /app/.next  # Cache Next.js build files
     working_dir: /app
     # Use development server with hot reloading
-    command: ["npm", "run", "dev"]
+    # command: ["npm", "run", "dev"]
     networks:
       - app-network-dev
     depends_on:
