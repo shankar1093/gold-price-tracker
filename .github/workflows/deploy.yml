@@ -69,21 +69,26 @@ jobs:
     # NEW: Clear frontend build cache and debug
     - name: Clear frontend build cache and debug
       if: ${{ !inputs.skip_build }}
+      working-directory: ./frontend
       run: |
+        echo "=== Current directory structure ==="
+        pwd
+        ls -la
+        
         echo "=== Clearing frontend build cache ==="
-        rm -rf frontend/.next
+        rm -rf .next
         
         echo "=== Checking Tailwind config ==="
-        cat frontend/tailwind.config.js | head -20
+        head -20 tailwind.config.js
         
         echo "=== Checking PostCSS config ==="
-        cat frontend/postcss.config.js
+        cat postcss.config.js
         
         echo "=== Checking package.json dependencies ==="
-        cd frontend && npm list @types/react-slick || echo "react-slick types missing"
+        npm list @types/react-slick || echo "react-slick types missing"
         
         echo "=== Installing dependencies to ensure types are available ==="
-        cd frontend && npm install
+        npm install
 
     - name: Build and push Frontend image
       if: ${{ !inputs.skip_build }}
