@@ -16,8 +16,8 @@ COPY src ./src
 # Build the project
 RUN cargo build --release
 
-# Use Debian Bullseye Slim for the final container
-FROM debian:bullseye-slim
+# Use Ubuntu 22.04 for the final container
+FROM ubuntu:22.04
 
 # Install necessary libraries for runtime
 RUN apt-get update && apt-get install -y libssl3 ca-certificates && \
