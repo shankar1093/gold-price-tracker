@@ -2,7 +2,7 @@
 FROM rust:1.75-slim AS builder
 
 # Install necessary libraries for building
-RUN apt-get update && apt-get install -y libssl-dev
+RUN apt-get update && apt-get install -y libssl-dev pkg-config
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
