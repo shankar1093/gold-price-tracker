@@ -10,7 +10,17 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN pip install watchdog  # For auto-reloading
 COPY . .
-COPY entrypoint.dev.sh /usr/src/app/
-RUN chmod +x /usr/src/app/entrypoint.dev.sh
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+echo "Creating database migrations..."\n\
+python manage.py makemigrations\n\
+echo "Applying database migrations..."\n\
+python manage.py migrate\n\
+echo "Starting development server..."\n\
+python manage.py runserver 0.0.0.0:8000 --settings=mjw_services.settings' > /usr/src/app/startup.sh
+
+RUN chmod +x /usr/src/app/startup.sh
+
 EXPOSE 8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "--settings=mjw_services.settings"]
+CMD ["/usr/src/app/startup.sh"]
