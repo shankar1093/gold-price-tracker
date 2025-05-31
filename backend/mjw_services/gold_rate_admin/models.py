@@ -4,6 +4,7 @@ from django.db import models
 
 class Rate(models.Model):
     date = models.DateField(unique=True)
+    rate_18kt = models.IntegerField(default=7500)
     rate_22kt = models.IntegerField()
     rate_24kt = models.IntegerField()
     arihant_rate_22kt = models.IntegerField(default=6850)
@@ -12,7 +13,7 @@ class Rate(models.Model):
 
 
     def __str__(self):
-        return f"{self.date} - 22kt: {self.rate_22kt}, 24kt: {self.rate_24kt}, Arihant 22kt: {self.arihant_rate_22kt}, Arihant 24kt: {self.arihant_rate_24kt}"
+        return f"{self.date} - 22kt: {self.rate_22kt}, 24kt: {self.rate_24kt}, 18kt: {self.rate_18kt},Arihant 18kt: {self.arihant_rate_24kt}, Arihant 22kt: {self.arihant_rate_22kt}, Arihant 24kt: {self.arihant_rate_24kt}"
 
     class Meta:
         ordering = ['-date']
