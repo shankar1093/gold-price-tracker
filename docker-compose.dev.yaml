@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
-  rust_backend:
+  rust-backend:
     build:
       context: backend/gold_price_service
       dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile

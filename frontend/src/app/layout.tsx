@@ -34,9 +34,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         fontBody.variable
       )}
     >
-      <body className="flex flex-col min-h-screen h-full">
+      <body className="flex flex-col h-screen overflow-hidden md:overflow-auto">
         <Header />
-        <main className="flex-grow flex flex-col pt-8 overflow-auto">
+        <main className="flex-grow overflow-y-auto">
           {children}
         </main>
         <Footer />

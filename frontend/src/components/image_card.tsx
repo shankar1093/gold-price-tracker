@@ -68,35 +68,20 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
   }, [currentSlide]);
 
   const settings = {
-    centerMode: true,
-    centerPadding: '0px',
-    slidesToShow,
+    centerMode: false,
+    slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
     infinite: true,
+    vertical: true,
     speed: 500,
     arrows: false,
     dots: false,
+    fade:true,
     pauseOnHover: false,
     cssEase: "linear",
     afterChange: (current: number) => setCurrentSlide(current),
-    responsive: [
-      {
-        breakpoint: 1180,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-        }
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        }
-      }
-    ]
   };
 
   const customPaging = useCallback(() => {
@@ -119,13 +104,13 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
       {images.length > 0 ? (
         <Slider ref={sliderRef} {...settings} className="h-full" customPaging={customPaging}>
           {images.map((image, index) => (
-            <div key={index} className="h-full px-1 flex items-center justify-center">
-              <div className="relative w-full h-full" style={getSlideStyle(index)}>
+            <div key={index} className="h-full flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center">
                 <Image
-                  isBlurred
                   alt={`MJW Jewellery ${index + 1}`}
                   src={image}
                   className="object-contain w-full h-full"
+                  style={{ maxHeight: '100%', maxWidth: '100%' }}
                 />
               </div>
             </div>

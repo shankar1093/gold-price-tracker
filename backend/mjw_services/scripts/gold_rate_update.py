@@ -62,6 +62,7 @@ def update_gold_rate():
         gold22ktPrice = (920 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
         gold18ktPrice = (750/999) * gold24ktPrice if gold24ktPrice != 0 else 0
 
+        adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.013)
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.013)  # Increased by 1.3%
         adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.05)  # Increased by 5%
 
@@ -70,6 +71,7 @@ def update_gold_rate():
         Rate.objects.update_or_create(
             date=today,  # Use the date object directly
             defaults={
+                "rate_18kt": math.floor(adjustedGold18ktPrice),
                 "rate_22kt": math.floor(adjustedGold22ktPrice),
                 "rate_24kt": math.floor(adjustedGold24ktPrice),
                 "arihant_rate_22kt": math.floor(gold22ktPrice),
