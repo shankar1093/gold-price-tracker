@@ -8,6 +8,8 @@ function price_adjustment(price: number) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let rate_22kt = null;
   let rate_24kt = null;
+  let rate_18kt = null;
+
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     const response = await fetch(`${backendUrl}/gold_rate_admin/gold-rate/`);
@@ -16,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const data = await response.json();
-
+    rate_18kt = data.rate_18kt;
     rate_22kt = data.rate_22kt;
     rate_24kt = data.rate_24kt;
   } catch (error) {
@@ -25,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   res.status(200).json({
+    gold18kt: rate_18kt,
     gold22kt: rate_22kt,
     gold24kt: rate_24kt,
     date: new Date().toLocaleDateString("en-IN"),

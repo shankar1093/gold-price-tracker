@@ -6,10 +6,10 @@ import Header from '../components/header';
 
 const HomePage = async () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto">
-          <MainContent gold22kt={0} gold24kt={0} date={new Date().toLocaleDateString("en-IN")} />
+          <MainContent gold18kt={0} gold22kt={0} gold24kt={0} date={new Date().toLocaleDateString("en-IN")} />
         </div>
       </main>
     </div>

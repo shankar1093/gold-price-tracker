@@ -5,6 +5,7 @@ import MyCard from '../components/price_cards';
 import ImageCard from '../components/image_card';
 
 interface HomePageProps {
+  gold18kt: number;
   gold22kt: number;
   gold24kt: number;
   date: string;
@@ -17,6 +18,7 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   } catch (error) {
     console.error('Error fetching gold price data, MC:', error);
     return {
+      gold18kt: 0,
       gold22kt: 0,
       gold24kt: 0,
       date: new Date().toLocaleDateString("en-IN"),
@@ -24,8 +26,8 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   }
 };
 
-const MainContent: React.FC<HomePageProps> = ({ gold22kt, gold24kt, date }) => {
-  const [data, setData] = useState<HomePageProps>({ gold22kt, gold24kt, date });
+const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, date }) => {
+  const [data, setData] = useState<HomePageProps>({ gold18kt, gold22kt, gold24kt, date });
 
   const fetchAndUpdateData = async () => {
     const newData = await fetchGoldDataFromServer();
@@ -44,19 +46,23 @@ const MainContent: React.FC<HomePageProps> = ({ gold22kt, gold24kt, date }) => {
   }, []);
 
   return (
-    <main className="flex flex-col min-h-screen">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-        <MyCard title="22kt Gold Price" price={data.gold22kt} date={data.date} />
-        <MyCard title="24kt Gold Price" price={data.gold24kt} date={data.date} />
-      </div>
-      <div className="flex-grow flex flex-col p-4">
-        <h2 className="text-2xl font-bold mb-4 text-center">Our Jewellery</h2>
-        <div className="flex-grow">
-          <ImageCard className="w-full h-full" />
-        </div>
-      </div>
-    </main>
+<main className="flex items-start justify-center p-4 sm:p-6 lg:p-10 xl:p-12 2xl:p-16">
+  <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mt-[15vh]">
+    {/* Price Cards Section */}
+    <div className="flex flex-col gap-4 w-full lg:w-1/2">
+      <MyCard title="24kt Gold Price" price={data.gold24kt} date={data.date} />
+      <MyCard title="22kt Gold Price" price={data.gold22kt} date={data.date} />
+      <MyCard title="18kt Gold Price" price={data.gold18kt} date={data.date} />
+    </div>
+
+    {/* Image Section */}
+    <div className="hidden lg:block w-full lg:w-1/2">
+      <ImageCard className="w-full h-full" />
+    </div>
+  </div>
+</main>
   );
 };
+
 
 export default MainContent;
