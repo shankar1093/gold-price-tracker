@@ -110,7 +110,7 @@ env/
 .venv/
 
 # Ignore migrations for gold_rate_admin app
-backend/mjw_services/gold_rate_admin/migrations/
+# backend/mjw_services/gold_rate_admin/migrations/
 
 # Python
 *.py[cod]
