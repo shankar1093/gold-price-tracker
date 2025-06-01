@@ -47,7 +47,7 @@ const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, da
 
   return (
 <main className="flex items-start justify-center p-4 sm:p-6 lg:p-10 xl:p-12 2xl:p-16">
-  <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mt-[15vh]">
+  <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mt-[10vh]">
     {/* Price Cards Section */}
     <div className="flex flex-col gap-4 w-full lg:w-1/2">
       <MyCard title="24kt Gold Price" price={data.gold24kt} date={data.date} />
