@@ -1,8 +1,7 @@
 #!/bin/sh
 set -e
 
-printenv > /tmp/env_vars.sh
-. /tmp/env_vars.sh 
+env | grep -E '^POSTGRES_|^DB_PASSWORD' | sed 's/^/export /' > /tmp/env_vars.sh
 
 echo "Waiting for PostgreSQL..."
 until PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q'; do
@@ -14,7 +13,7 @@ echo "Running migrations..."
 python manage.py migrate
 
 echo "Setting up cron job for gold_rate_update script..."
-echo "* * * * * . /tmp/env_vars.sh && /usr/local/bin/python /app/scripts/gold_rate_update.py >> /var/log/cron.log 2>&1" > /etc/cron.d/gold_rate_update
+echo "30 3 * * * . /tmp/env_vars.sh && /usr/local/bin/python /app/scripts/gold_rate_update.py >> /var/log/cron.log 2>&1" > /etc/cron.d/gold_rate_update
 chmod 0644 /etc/cron.d/gold_rate_update
 crontab /etc/cron.d/gold_rate_update
 
