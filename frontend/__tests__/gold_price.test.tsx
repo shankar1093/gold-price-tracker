@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { createMocks } from 'node-mocks-http'; // Add this import
-import handler from '../src/pages/api/gold_price';
+import handler from '../src/pages/api/metal_price';
 import { NextApiRequest, NextApiResponse } from 'next'; // Add this import
 
 describe('Gold Price API', () => {

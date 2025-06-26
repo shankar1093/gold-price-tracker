@@ -6,7 +6,7 @@ from .models import Rate
 def index(request):
     return HttpResponse("Hello, world. You're at the mjw_services index.")
 
-def get_gold_rate(request):
+def get_metal_rates(request):
     today = timezone.now().date()
     try:
         # First, try to get today's rate
@@ -23,12 +23,14 @@ def get_gold_rate(request):
         'rate_22kt': rate.rate_22kt,
         'rate_24kt': rate.rate_24kt,
         'rate_18kt': rate.arihant_rate_18kt,
+        'rate_silver': rate.rate_silver,
         'arihant_rate_22kt': rate.arihant_rate_22kt,
         'arihant_rate_24kt': rate.arihant_rate_24kt,
         'arihant_rate_18kt': rate.arihant_rate_18kt,
+        'arihant_silver': rate.arihant_rate_silver,
     })
 
-def get_gold_rate_by_date_range(request, start_date, end_date):
+def get_metal_rate_by_date_range(request, start_date, end_date):
     rates = Rate.objects.filter(date__range=(start_date, end_date))
     return JsonResponse({
         'rates': list(rates.values()),
