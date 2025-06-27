@@ -9,7 +9,7 @@ const HomePage = async () => {
     <div className="flex flex-col">
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto">
-          <MainContent gold18kt={0} gold22kt={0} gold24kt={0} date={new Date().toLocaleDateString("en-IN")} />
+          <MainContent gold18kt={0} gold22kt={0} gold24kt={0} silver={0} date={new Date().toLocaleDateString("en-IN")} />
         </div>
       </main>
     </div>
