@@ -1,4 +1,4 @@
-# Gold Price Tracking Application
+# Gold and Silver Price Tracking Application
 
 This web application is designed for retail stores to display the most up-to-date prices of 22kt and 24kt gold to consumers.
 
