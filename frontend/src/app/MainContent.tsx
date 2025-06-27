@@ -8,7 +8,7 @@ interface HomePageProps {
   gold18kt: number;
   gold22kt: number;
   gold24kt: number;
-  silver: number
+  silver: number;
   date: string;
 }
 
