@@ -56,6 +56,7 @@ jobs:
         # Create .env.production for frontend
         echo "BACKEND_URL=${{ secrets.FRONTEND_BACKEND_URL }}" > frontend/.env.production
         echo "HOSTNAME=${{ secrets.FRONTEND_HOSTNAME }}" >> frontend/.env.production
+        echo "API_KEY=${{ secrets.API_KEY }}" >> frontend/.env.production
         # Add Instagram variables
         echo "INSTAGRAM_ACCESS_TOKEN=${{ secrets.INSTAGRAM_ACCESS_TOKEN }}" >> frontend/.env.production
         echo "INSTAGRAM_USER_ID=${{ secrets.INSTAGRAM_USER_ID }}" >> frontend/.env.production
