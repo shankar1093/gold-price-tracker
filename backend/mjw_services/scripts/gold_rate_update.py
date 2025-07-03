@@ -113,7 +113,7 @@ def update_metal_rate():
         ) / 1.03
 
         metal_prices["arihant_silver"] = math.floor(silver999price)
-        metal_prices["rate_silver"] = math.floor(silver999price) * 1.013/100 #keep silver price per gram
+        metal_prices["rate_silver"] = math.floor(silver999price) * 1.12/100 #keep silver price per gram
         print("Successfully updated silver rate")
     except Exception as e:
         print(f"Error updating gold rate: {str(e)}")
