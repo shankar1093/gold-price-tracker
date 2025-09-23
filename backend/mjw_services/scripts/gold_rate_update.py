@@ -68,12 +68,12 @@ def update_metal_rate():
         gold22ktPrice = (920 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
         gold18ktPrice = (750 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
 
-        adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.013)
+        adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.008)
         adjustedGold22ktPrice = price_adjustment(
-            gold22ktPrice * 1.013
+            gold22ktPrice * 1.008
         )  # Increased by 1.3%
         adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.05
+            gold24ktPrice * 1.04
         )  # Increased by 5%
 
         today = timezone.now().date()  # Get the current date
@@ -113,7 +113,7 @@ def update_metal_rate():
         ) / 1.03
 
         metal_prices["arihant_silver"] = math.floor(silver999price)
-        metal_prices["rate_silver"] = math.floor(silver999price) * 1.12/100 #keep silver price per gram
+        metal_prices["rate_silver"] = math.floor(silver999price) * 1.10/100 #keep silver price per gram
         print("Successfully updated silver rate")
     except Exception as e:
         print(f"Error updating gold rate: {str(e)}")
