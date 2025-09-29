@@ -91,7 +91,7 @@ async fn get_gold_price_stream(state: web::Data<SharedState>) -> impl Responder 
 
 #[get("/silver_price")]
 async fn get_silver_price() -> impl Responder {
-    let api_url = "https://bcast.arihantspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/arihantsilver";
+    let api_url = "http://bcast.nm1788.net:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/nm1788";
     let response = reqwest::get(api_url).await;
     match (response){
         Ok(response) => {
