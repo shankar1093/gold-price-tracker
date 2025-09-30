@@ -4,6 +4,7 @@ import django
 import requests
 import math
 from django.utils import timezone
+import re
 
 # Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,21 +42,27 @@ def update_metal_rate():
         "arihant_rate_18kt": None,
         "arihant_silver": None,
     }
+    def norm(s: str) -> str:
+        return re.sub(r"\s+", " ", s.strip().lower())
+
     try:
         response = requests.get(api_url)
         data = response.json()
+
+
 
         gold999WithGst = next(
             (
                 item
                 for item in data
                 if any(
-                    term in item.get("description", "").lower()
+                    term in norm(item.get("description", "").lower())
                     for term in GOLD_999_SEARCH_TERMS
                 )
             ),
             None,
         )
+
 
         if gold999WithGst is None:
             raise ValueError("Couldn't find matching gold price data")
@@ -93,28 +100,27 @@ def update_metal_rate():
     try:
         response = requests.get(silver_api_url)
         data = response.json()
-
         SILVER_SEARCH_TERMS = [
-            "SILVER 999 WITH GST",
+            "silver 999 with gst",
         ]
         silver = next(
             (
                 item
                 for item in data
                 if any(
-                    term in item.get("description", "").lower().rstrip()
+                    term in norm(item.get("description", "").lower())
                     for term in SILVER_SEARCH_TERMS
                 )
             ),
             None,
         )
 
+
         silver999price = (
             float(silver["ask"]) / 10 if silver and silver["ask"].isdigit() else 0
         ) / 1.03
-
         metal_prices["arihant_silver"] = math.floor(silver999price)
-        metal_prices["rate_silver"] = math.floor(silver999price) * 1.10/100 #keep silver price per gram
+        metal_prices["rate_silver"] = math.floor(silver999price) * 1.12/100 #keep silver price per gram
         print("Successfully updated silver rate")
     except Exception as e:
         print(f"Error updating gold rate: {str(e)}")
