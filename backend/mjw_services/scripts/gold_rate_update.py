@@ -30,6 +30,7 @@ def update_metal_rate():
     backendUrl = "http://rust-backend:8080"  # Adjust this as needed
     api_url = f"{backendUrl}/gold_price"
     silver_api_url = f"{backendUrl}/silver_price"
+    today = timezone.now().date()  # Move this line here, outside the try blocks
     metal_prices = {
         "rate_18kt": None,
         "rate_22kt": None,
@@ -73,10 +74,10 @@ def update_metal_rate():
             gold22ktPrice * 1.008
         )  # Increased by 1.3%
         adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.04
+            gold24ktPrice * 1.05
         )  # Increased by 5%
 
-        today = timezone.now().date()  # Get the current date
+        # Remove the today = timezone.now().date() line from here
 
         metal_prices["rate_18kt"] = math.floor(adjustedGold18ktPrice)
         metal_prices["rate_22kt"] = math.floor(adjustedGold22ktPrice)
@@ -94,7 +95,7 @@ def update_metal_rate():
         data = response.json()
 
         SILVER_SEARCH_TERMS = [
-            "silver with gst",
+            "SILVER 999 WITH GST",
         ]
         silver = next(
             (
