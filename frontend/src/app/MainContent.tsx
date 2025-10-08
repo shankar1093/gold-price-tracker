@@ -60,6 +60,9 @@ const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, si
         <div className="flex flex-col gap-4 w-full lg:w-1/2">
           <PriceCard title="24kt Gold Price" price={data.gold24kt} />
           <PriceCard title="22kt Gold Price" price={data.gold22kt} />
+          <div className='block md:hidden'>
+            <PriceCard title="Gold Buy Back (22kt)" price={(data.gold22kt-data.gold22kt*0.1)} />
+          </div>
           <PriceCard title="18kt Gold Price" price={data.gold18kt}  />
           <PriceCard title="Silver Price" price={data.silver}/>
         </div>
