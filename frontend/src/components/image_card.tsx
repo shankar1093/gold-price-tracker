@@ -9,16 +9,32 @@ interface ImageCardProps {
   style?: React.CSSProperties; 
 }
 
+
 const ImageCard: React.FC<ImageCardProps> = (props) => {
   const [images, setImages] = useState<string[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<Slider>(null);
   const [slidesToShow, setSlidesToShow] = useState(3);
 
+
+  const isTallImage = (imageUrl: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new window.Image(); // Use native Image constructor
+      img.onload = () => {
+        const aspectRatio = img.width / img.height;
+        console.log(aspectRatio)
+        resolve(aspectRatio < 1.0);
+      };
+      img.onerror = () => resolve(false);
+      img.src = imageUrl;
+    });
+  };
+  
   useEffect(() => {
     const fetchImages = async () => {
       try {
         // Check if we have cached data
+        
         const cached = localStorage.getItem('instagram_photos');
         const cacheTimestamp = localStorage.getItem('instagram_photos_timestamp');
         const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -37,8 +53,16 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         const response = await fetch('/api/instagram_photos');
         const data = await response.json();
         
+
+        const filteredImages = [];
+        for (const imageUrl of data) {
+          const isTall = await isTallImage(imageUrl);
+          if (!isTall) {
+            filteredImages.push(imageUrl);
+          }
+        }
         // Update state and cache
-        setImages(data);
+        setImages(filteredImages);
         localStorage.setItem('instagram_photos', JSON.stringify(data));
         localStorage.setItem('instagram_photos_timestamp', Date.now().toString());
       } catch (error) {
@@ -74,7 +98,7 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
     autoplay: true,
     autoplaySpeed: 5000,
     infinite: true,
-    vertical: true,
+    vertical: false,
     speed: 500,
     arrows: false,
     dots: false,
@@ -89,6 +113,8 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
       <div className="w-2 h-2 mx-1 rounded-full bg-gray-300 hover:bg-gray-400" />
     );
   }, []);
+
+  
 
   const getSlideStyle = (index: number) => {
     const isActive = index === currentSlide;
@@ -105,11 +131,11 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         <Slider ref={sliderRef} {...settings} className="h-full" customPaging={customPaging}>
           {images.map((image, index) => (
             <div key={index} className="h-full flex items-center justify-center">
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                 <Image
                   alt={`MJW Jewellery ${index + 1}`}
                   src={image}
-                  className="object-contain w-full h-full"
+                  className="object-cover w-full h-full"
                   style={{ maxHeight: '100%', maxWidth: '100%' }}
                 />
               </div>
