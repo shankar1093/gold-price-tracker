@@ -20,6 +20,7 @@ GOLD_999_SEARCH_TERMS = [
     "gold 999 with gst",
     "gold 999 imported with gst",
     "gold 999 indian-bis with gst",
+    "gold 999 imp (lbma) with gst"
 ]
 
 
