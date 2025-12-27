@@ -88,11 +88,11 @@ def update_metal_rate():
 
         adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.008)
         adjustedGold22ktPrice = price_adjustment(
-            gold22ktPrice * 1.008
-        )  # Increased by 1.3%
+            gold22ktPrice * 1.011
+        )  # Increased by 1.1%
         adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.04
-        )  # Increased by 4% starting 11/17 on account of stability in gold price.
+            gold24ktPrice * 1.05
+        )  # Increased by 5% starting 11/17 on account of stability in gold price.
 
         # Remove the today = timezone.now().date() line from here
 
