@@ -68,6 +68,8 @@ services:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "http://python-backend:8080"
+      INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
+      INSTAGRAM_USER_ID: ${INSTAGRAM_USER_ID}
     ports:
       - "3000:3000"
     restart: "always"

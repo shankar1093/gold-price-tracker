@@ -79,6 +79,8 @@ services:
       BACKEND_URL: "http://python-backend:8000"  # Use service name instead of localhost
       CHOKIDAR_USEPOLLING: "true"  # Enable polling for file changes in Docker
       WATCHPACK_POLLING: "true"
+      INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
+      INSTAGRAM_USER_ID: ${INSTAGRAM_USER_ID}
     ports:
       - "3000:3000"
     volumes:
