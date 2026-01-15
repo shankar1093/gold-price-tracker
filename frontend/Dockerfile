@@ -8,13 +8,16 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm install; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Using cache mounts for faster subsequent builds
+COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/root/.yarn \
+    --mount=type=cache,target=/root/.pnpm-store \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -26,22 +29,13 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Debug: Show Tailwind config and PostCSS config
-RUN echo "=== Tailwind Config ===" && cat tailwind.config.js | head -10 || cat tailwind.config.mjs | head -10 || echo "No tailwind config found"
-RUN echo "=== PostCSS Config ===" && cat postcss.config.js || cat postcss.config.mjs || echo "No postcss config found"
-
-# Build with debugging
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
-# Debug: Check if Tailwind compiled properly
-RUN echo "=== CSS Files Generated ===" && find .next -name "*.css"
-RUN echo "=== First CSS File Content ===" && find .next -name "*.css" | head -1 | xargs head -20
-RUN echo "=== Check for compiled Tailwind ===" && find .next -name "*.css" -exec grep -l "\.bg-primary\|\.flex" {} \; || echo "No compiled Tailwind found"
+# Build the application
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -f yarn.lock ]; then yarn run build; \
+    elif [ -f package-lock.json ]; then npm run build; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
 # Production image, copy all the files and run next
 FROM base AS runner
