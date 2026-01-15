@@ -1,14 +1,28 @@
-FROM python:3.11
+# syntax=docker.io/docker/dockerfile:1
 
-# Install PostgreSQL client, cron, and curl
-RUN apt-get update && \
-    apt-get install -y postgresql-client cron curl && \
-    rm -rf /var/lib/apt/lists/*
+# Use slim Python image for smaller size and faster pulls
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies in a single layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+    cron \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
+
+# Install Python dependencies with cache mount
 COPY requirements.txt .
-RUN pip install -r requirements.txt
-RUN pip install watchdog  # For auto-reloading
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt && \
+    pip install watchdog
+
 COPY . .
 
 # Create startup script
@@ -18,9 +32,8 @@ python manage.py makemigrations\n\
 echo "Applying database migrations..."\n\
 python manage.py migrate\n\
 echo "Starting development server..."\n\
-python manage.py runserver 0.0.0.0:8000 --settings=mjw_services.settings' > /usr/src/app/startup.sh
-
-RUN chmod +x /usr/src/app/startup.sh
+python manage.py runserver 0.0.0.0:8000 --settings=mjw_services.settings' > /usr/src/app/startup.sh && \
+    chmod +x /usr/src/app/startup.sh
 
 EXPOSE 8000
 CMD ["/usr/src/app/startup.sh"]
