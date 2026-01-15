@@ -73,6 +73,8 @@ services:
     build:
       context: frontend/
       dockerfile: Dockerfile.dev  # Create a dev-specific Dockerfile
+    env_file:
+      - .env.development
     environment:
       NODE_ENV: "development"
       HOSTNAME: "0.0.0.0"
