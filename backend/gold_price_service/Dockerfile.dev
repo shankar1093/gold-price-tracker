@@ -1,6 +1,7 @@
 FROM rust:1.81
 WORKDIR /usr/src/app
-RUN cargo install cargo-watch
+RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash && \
+    cargo binstall cargo-watch -y
 COPY Cargo.toml Cargo.lock ./
 RUN cargo fetch
 COPY . .
