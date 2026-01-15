@@ -1,2 +1,51 @@
-.next
+# Dependencies (rebuilt in container)
+node_modules/
+
+# Build output (rebuilt in container)
+.next/
+out/
+
+# Development files
 .env.development
+.env.local
+.env*.local
+
+# Testing
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+jest.config.ts
+
+# Version control
+.git/
+.gitignore
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (not needed inside container)
+Dockerfile
+Dockerfile.dev
+docker-compose*.yaml
+.dockerignore
