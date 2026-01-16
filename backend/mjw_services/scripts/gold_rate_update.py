@@ -132,8 +132,8 @@ def update_metal_rate():
             gold22ktPrice * 1.011
         )  # Increased by 1.1%
         adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.05
-        )  # Increased by 5% starting 11/17 on account of stability in gold price.
+            gold24ktPrice * 1.04
+        )  # Increased by 4% starting 1/16 on account of unstability in gold price.
 
         metal_prices["rate_18kt"] = math.floor(adjustedGold18ktPrice)
         metal_prices["rate_22kt"] = math.floor(adjustedGold22ktPrice)
@@ -182,6 +182,11 @@ def update_metal_rate():
         metal_prices["rate_silver"] = math.floor(silver999price) * 1.12/100 #keep silver price per gram
         print("Successfully updated silver rate")
     except Exception as e:
+        get_sns_client().publish(
+            TopicArn="arn:aws:sns:ap-south-1:263095946180:GoldRateAlerts",
+            Message=f"Error updating silver rate: {str(e)}",
+            Subject="Silver Rate Update Failed, Check the source"
+        )
         print(f"Error updating silver rate: {str(e)}")
 
     Rate.objects.update_or_create(
