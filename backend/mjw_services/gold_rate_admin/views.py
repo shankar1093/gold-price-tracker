@@ -1,6 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+import json
+from datetime import datetime
 from .models import Rate
 
 def index(request):
@@ -35,3 +41,117 @@ def get_metal_rate_by_date_range(request, start_date, end_date):
     return JsonResponse({
         'rates': list(rates.values()),
     })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def admin_login(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required'}, status=400)
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return JsonResponse({
+                'success': True,
+                'message': 'Login successful',
+                'username': user.username
+            })
+        else:
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def admin_logout(request):
+    logout(request)
+    return JsonResponse({'success': True, 'message': 'Logout successful'})
+
+@require_http_methods(["GET"])
+def admin_status(request):
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'authenticated': True,
+            'username': request.user.username
+        })
+    return JsonResponse({'authenticated': False})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def manual_rate_update(request):
+    try:
+        data = json.loads(request.body)
+        date_str = data.get('date')
+
+        if not date_str:
+            date = timezone.now().date()
+        else:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        # Get or create the rate for the date
+        rate, created = Rate.objects.get_or_create(
+            date=date,
+            defaults={
+                'rate_18kt': data.get('rate_18kt', 7500),
+                'rate_22kt': data.get('rate_22kt', 6850),
+                'rate_24kt': data.get('rate_24kt', 7500),
+                'rate_silver': data.get('rate_silver', 106),
+                'arihant_rate_18kt': data.get('arihant_rate_18kt', 7500),
+                'arihant_rate_22kt': data.get('arihant_rate_22kt', 6850),
+                'arihant_rate_24kt': data.get('arihant_rate_24kt', 7500),
+                'arihant_rate_silver': data.get('arihant_rate_silver', 106),
+                'is_manual_override': True,
+                'updated_by': request.user.username
+            }
+        )
+
+        # If not created, update the existing record
+        if not created:
+            if 'rate_18kt' in data:
+                rate.rate_18kt = data['rate_18kt']
+            if 'rate_22kt' in data:
+                rate.rate_22kt = data['rate_22kt']
+            if 'rate_24kt' in data:
+                rate.rate_24kt = data['rate_24kt']
+            if 'rate_silver' in data:
+                rate.rate_silver = data['rate_silver']
+            if 'arihant_rate_18kt' in data:
+                rate.arihant_rate_18kt = data['arihant_rate_18kt']
+            if 'arihant_rate_22kt' in data:
+                rate.arihant_rate_22kt = data['arihant_rate_22kt']
+            if 'arihant_rate_24kt' in data:
+                rate.arihant_rate_24kt = data['arihant_rate_24kt']
+            if 'arihant_rate_silver' in data:
+                rate.arihant_rate_silver = data['arihant_rate_silver']
+
+            rate.is_manual_override = True
+            rate.updated_by = request.user.username
+            rate.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Rate updated successfully',
+            'rate': {
+                'date': rate.date,
+                'rate_18kt': rate.rate_18kt,
+                'rate_22kt': rate.rate_22kt,
+                'rate_24kt': rate.rate_24kt,
+                'rate_silver': rate.rate_silver,
+                'arihant_rate_18kt': rate.arihant_rate_18kt,
+                'arihant_rate_22kt': rate.arihant_rate_22kt,
+                'arihant_rate_24kt': rate.arihant_rate_24kt,
+                'arihant_rate_silver': rate.arihant_rate_silver,
+                'is_manual_override': rate.is_manual_override,
+                'updated_by': rate.updated_by
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

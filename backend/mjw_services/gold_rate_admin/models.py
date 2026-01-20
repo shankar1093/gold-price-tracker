@@ -12,6 +12,9 @@ class Rate(models.Model):
     arihant_rate_24kt = models.IntegerField(default=7500)
     arihant_rate_18kt = models.IntegerField(default=7500)
     arihant_rate_silver = models.IntegerField(default=106)
+    is_manual_override = models.BooleanField(default=False)
+    updated_by = models.CharField(max_length=255, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 
