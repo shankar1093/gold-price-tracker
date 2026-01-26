@@ -29,23 +29,21 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
 };
 
 const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, silver, date }) => {
+  // Use server-provided props as the primary data source
+  // Since prices update once daily and we use ISR, client-side fetching is not needed
   const [data, setData] = useState<HomePageProps>({ gold18kt, gold22kt, gold24kt, silver, date });
 
-  const fetchAndUpdateData = async () => {
-    const newData = await fetchGoldDataFromServer();
-    setData(newData);
-  };
+  // Optional: Uncomment below if you want client-side updates
+  // const fetchAndUpdateData = async () => {
+  //   const newData = await fetchGoldDataFromServer();
+  //   setData(newData);
+  // };
 
-  useEffect(() => {
-    // Fetch data immediately on mount
-    fetchAndUpdateData();
-
-    // Set up interval to fetch data every 5 minutes (300000 ms)
-    const intervalId = setInterval(fetchAndUpdateData, 300000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
+  // useEffect(() => {
+  //   // Fetch data once per hour as a fallback
+  //   const intervalId = setInterval(fetchAndUpdateData, 3600000); // 1 hour
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   return (
     <main className="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-10 xl:p-12 2xl:p-16">
