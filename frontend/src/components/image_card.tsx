@@ -50,7 +50,9 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         }
 
         // Fetch new data if cache is missing or expired
-        const response = await fetch('/api/instagram_photos');
+        // Use Cloudflare Worker URL for static export, fallback to local API for dev
+        const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/instagram_photos';
+        const response = await fetch(instagramApiUrl);
         const data = await response.json();
         
 
