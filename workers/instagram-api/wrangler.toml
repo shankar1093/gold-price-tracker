@@ -1,0 +1,8 @@
+name = "instagram-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# These are placeholder values - set actual values using `wrangler secret put`
+# INSTAGRAM_USER_ID = "your-user-id"
+# INSTAGRAM_ACCESS_TOKEN = "your-access-token"

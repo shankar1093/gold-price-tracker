@@ -14,15 +14,24 @@ interface HomePageProps {
 
 const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   try {
-    const res = await fetch('/api/metal_price');
-    return await res.json();
+    // Fetch directly from backend API for static export compatibility
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+    const res = await fetch(`${backendUrl}/gold_rate_admin/metal-rate/`);
+    const data = await res.json();
+    return {
+      gold18kt: data.rate_18kt || 0,
+      gold22kt: data.rate_22kt || 0,
+      gold24kt: data.rate_24kt || 0,
+      silver: data.rate_silver || 0,
+      date: data.date || new Date().toLocaleDateString("en-IN"),
+    };
   } catch (error) {
     console.error('Error fetching gold price data, MC:', error);
     return {
       gold18kt: 0,
       gold22kt: 0,
       gold24kt: 0,
-      silver:0,
+      silver: 0,
       date: new Date().toLocaleDateString("en-IN"),
     };
   }
