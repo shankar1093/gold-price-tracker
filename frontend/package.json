@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "STATIC_EXPORT=true next build",
+    "prebuild:static": "node scripts/prebuild.js",
+    "build:static": "npm run prebuild:static && STATIC_EXPORT=true next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

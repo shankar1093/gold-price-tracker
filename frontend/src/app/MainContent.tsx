@@ -14,7 +14,24 @@ interface HomePageProps {
 
 const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
   try {
-    // Fetch directly from backend API for static export compatibility
+    // For static export: try to fetch from pre-built static JSON first
+    const staticRes = await fetch('/data/prices.json');
+    if (staticRes.ok) {
+      const data = await staticRes.json();
+      return {
+        gold18kt: data.gold18kt || 0,
+        gold22kt: data.gold22kt || 0,
+        gold24kt: data.gold24kt || 0,
+        silver: data.silver || 0,
+        date: data.date || new Date().toLocaleDateString("en-IN"),
+      };
+    }
+  } catch {
+    // Static file not available, fall through to backend API
+  }
+
+  try {
+    // Fallback: fetch from backend API (for development)
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
     const res = await fetch(`${backendUrl}/gold_rate_admin/metal-rate/`);
     const data = await res.json();
@@ -26,7 +43,7 @@ const fetchGoldDataFromServer = async (): Promise<HomePageProps> => {
       date: data.date || new Date().toLocaleDateString("en-IN"),
     };
   } catch (error) {
-    console.error('Error fetching gold price data, MC:', error);
+    console.error('Error fetching gold price data:', error);
     return {
       gold18kt: 0,
       gold22kt: 0,

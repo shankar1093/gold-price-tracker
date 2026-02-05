@@ -50,10 +50,25 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         }
 
         // Fetch new data if cache is missing or expired
-        // Use Cloudflare Worker URL for static export, fallback to local API for dev
-        const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/instagram_photos';
-        const response = await fetch(instagramApiUrl);
-        const data = await response.json();
+        let data: string[] = [];
+
+        // For static export: try to fetch from pre-built static JSON first
+        try {
+          const staticRes = await fetch('/data/instagram.json');
+          if (staticRes.ok) {
+            const staticData = await staticRes.json();
+            data = staticData.images || [];
+          }
+        } catch {
+          // Static file not available, fall through to API
+        }
+
+        // Fallback: fetch from API (Cloudflare Worker or local API for dev)
+        if (data.length === 0) {
+          const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/instagram_photos';
+          const response = await fetch(instagramApiUrl);
+          data = await response.json();
+        }
         
 
         const filteredImages = [];
