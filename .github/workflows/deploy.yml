@@ -48,7 +48,7 @@ jobs:
     - name: Pull Node.js base image
       if: ${{ !inputs.skip_build }}
       run: |
-        docker pull public.ecr.aws/docker/library/node:16-buster
+        docker pull public.ecr.aws/docker/library/node:20-alpine
 
     - name: Set up environment variables
       if: ${{ !inputs.skip_build }}
