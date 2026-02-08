@@ -123,26 +123,27 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:${{ env.COMMIT_HASH }} \
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-python-backend:latest \
           --push backend/mjw_services
-          - name: Deploy Cloudflared on EC2
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_USER }}
-            key: ${{ secrets.EC2_PRIVATE_KEY }}
-            script: |
-              # Stop existing cloudflared if running
-              docker stop cloudflared || true
-              docker rm cloudflared || true
-              
-              # Run cloudflared container
-              docker run -d \
-                --name cloudflared \
-                --network gold-price-tracker_app-network-dev \
-                --restart always \
-                -e TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }} \
-                cloudflare/cloudflared:latest \
-                tunnel run
-              
+          
+    - name: Deploy Cloudflared on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        script: |
+          # Stop existing cloudflared if running
+          docker stop cloudflared || true
+          docker rm cloudflared || true
+          
+          # Run cloudflared container
+          docker run -d \
+            --name cloudflared \
+            --network gold-price-tracker_app-network-dev \
+            --restart always \
+            -e TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }} \
+            cloudflare/cloudflared:latest \
+            tunnel run
+          
     - name: Build and push PostgreSQL image
       if: ${{ !inputs.skip_build }}
       env:
