@@ -67,7 +67,7 @@ services:
     environment:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
-      BACKEND_URL: "http://python-backend:8080"
+      NEXT_PUBLIC_BACKEND_URL: "http://python-backend:8000"
     ports:
       - "3000:3000"
     restart: "always"
@@ -81,7 +81,7 @@ services:
     environment:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
-      BACKEND_URL: "http://python-backend:8080"
+      NEXT_PUBLIC_BACKEND_URL: "http://python-backend:8000"
       INTERNAL_MODE: "true"  # Use this to show different content
     # No ports exposed - only accessible via tunnel
     restart: "always"
