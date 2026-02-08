@@ -131,9 +131,12 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
+          # Pull latest cloudflared image
+          docker pull cloudflare/cloudflared:latest
+          
           # Stop existing cloudflared if running
-          docker stop cloudflared || true
-          docker rm cloudflared || true
+          docker stop cloudflared 2>/dev/null || true
+          docker rm cloudflared 2>/dev/null || true
           
           # Run cloudflared container
           docker run -d \
@@ -143,6 +146,9 @@ jobs:
             -e TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }} \
             cloudflare/cloudflared:latest \
             tunnel run
+          
+          # Verify it's running
+          docker ps | grep cloudflared
           
     - name: Build and push PostgreSQL image
       if: ${{ !inputs.skip_build }}
