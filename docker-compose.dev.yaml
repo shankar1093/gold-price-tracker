@@ -95,6 +95,31 @@ services:
     depends_on:
       - python-backend
 
+  frontend-internal:
+    build:
+      context: frontend/
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: "production"
+      HOSTNAME: "0.0.0.0"
+      BACKEND_URL: "http://python-backend:8080"
+      INTERNAL_MODE: "true"  # Use this to show different content
+    # No ports exposed - only accessible via tunnel
+    restart: "always"
+    networks:
+      - app-network-dev
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --protocol http2 run  # Add --protocol http2
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    restart: always
+    networks:
+      - app-network-dev
+    depends_on:
+      - frontend-internal
+      
   # Optional: Add a database admin tool for development
   adminer:
     image: adminer
