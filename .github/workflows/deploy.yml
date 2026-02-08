@@ -141,7 +141,7 @@ jobs:
           # Run cloudflared container
           docker run -d \
             --name cloudflared \
-            --network gold-price-tracker_app-network \
+            --network app-network \
             --restart always \
             -e TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }} \
             cloudflare/cloudflared:latest \
