@@ -44,6 +44,9 @@ services:
       POSTGRES_USER: rate_service
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: mjw
+      INSTAGRAM_USER_ID: ${INSTAGRAM_USER_ID}
+      INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
+      INSTAGRAM_USERNAME: ${INSTAGRAM_USERNAME}
     ports:
       - "8000:8000"
     restart: "always"
@@ -52,6 +55,7 @@ services:
       - ./backend/mjw_services:/usr/src/app
       - ./backend/mjw_services/wait-for-it.sh:/usr/src/app/wait-for-it.sh
       - ./backend/mjw_services/entrypoint.sh:/usr/src/app/entrypoint.sh
+      - photos_data:/usr/src/app/photos
     networks:
       - app-network
     depends_on:
@@ -68,6 +72,7 @@ services:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "http://python-backend:8000"
+      PUBLIC_BACKEND_URL: ${PUBLIC_BACKEND_URL:-http://localhost:8000}
     ports:
       - "3000:3000"
     restart: "always"
@@ -106,3 +111,4 @@ networks:
 
 volumes:
   postgres_data:
+  photos_data:

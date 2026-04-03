@@ -35,8 +35,8 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
       try {
         // Check if we have cached data
         
-        const cached = localStorage.getItem('instagram_photos');
-        const cacheTimestamp = localStorage.getItem('instagram_photos_timestamp');
+        const cached = localStorage.getItem('mjw_photos');
+        const cacheTimestamp = localStorage.getItem('mjw_photos_timestamp');
         const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
         // Use cached data if it exists and is not expired
@@ -50,8 +50,8 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         }
 
         // Fetch new data if cache is missing or expired
-        // Use Cloudflare Worker URL for static export, fallback to local API for dev
-        const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/instagram_photos';
+        // Use env override if set, otherwise use the Django-backed photos API
+        const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/photos';
         const response = await fetch(instagramApiUrl);
         const data = await response.json();
         
@@ -65,12 +65,12 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
         }
         // Update state and cache
         setImages(filteredImages);
-        localStorage.setItem('instagram_photos', JSON.stringify(data));
-        localStorage.setItem('instagram_photos_timestamp', Date.now().toString());
+        localStorage.setItem('mjw_photos', JSON.stringify(data));
+        localStorage.setItem('mjw_photos_timestamp', Date.now().toString());
       } catch (error) {
         console.error('Error fetching images:', error);
         // If fetch fails, try to use cached data as fallback
-        const cached = localStorage.getItem('instagram_photos');
+        const cached = localStorage.getItem('mjw_photos');
         if (cached) {
           setImages(JSON.parse(cached));
         }

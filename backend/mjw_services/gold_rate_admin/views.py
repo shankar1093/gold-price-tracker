@@ -7,7 +7,14 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 import json
 from datetime import datetime
-from .models import Rate
+from .models import Rate, Photo
+
+@require_http_methods(["GET"])
+def get_photos(request):
+    photos = Photo.objects.filter(is_active=True)
+    paths = [f'/media/photos/{photo.filename}' for photo in photos]
+    return JsonResponse(paths, safe=False)
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the mjw_services index.")
