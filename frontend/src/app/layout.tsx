@@ -1,20 +1,19 @@
-"use client";  // Add this directive at the top if required for client-side features
+"use client";
 
 import React, { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
+import { Playfair_Display, Lora } from 'next/font/google';
 import { cn } from '../../lib/utils';
 import './globals.css';
 import Footer from '../components/footer';
 import Header from '../components/header';
 
-
-const fontHeading = Inter({
+const fontHeading = Playfair_Display({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-heading',
 });
 
-const fontBody = Inter({
+const fontBody = Lora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',

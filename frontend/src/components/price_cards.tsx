@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { Card, CardHeader, CardBody, CardFooter } from '@nextui-org/react';
 
 interface PriceCardProps {
   title: string;
@@ -8,17 +7,36 @@ interface PriceCardProps {
 }
 
 const PriceCard: React.FC<PriceCardProps> = ({ title, price }) => {
-  const displayPrice = isNaN(Number(price)) ? 'N/A' : Math.floor(price || 0);
+  const displayPrice = isNaN(Number(price)) ? 'N/A' : Math.floor(price || 0).toLocaleString('en-IN');
 
   return (
-<Card className="w-full h-auto transform transition-transform hover:scale-105 p-4 md:p-[22px] xl:p-8">
-  <CardHeader className="flex justify-between items-center text-base sm:text-lg md:text-xl lg:text-2xl font-semibold px-2">
-    <span>{title}</span>
-    <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
-      ₹{displayPrice}
-    </span>
-  </CardHeader>
-</Card>
+    <div
+      className="
+        w-full rounded-lg p-4 md:p-5 xl:p-6
+        bg-card border border-border
+        flex items-center justify-between
+        transition-all duration-200
+        hover:shadow-md hover:-translate-y-0.5
+        relative overflow-hidden
+      "
+    >
+      {/* Gold left accent bar */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+        style={{ background: 'linear-gradient(to bottom, hsl(42,77%,44%), hsl(44,85%,60%))' }}
+      />
+
+      <span className="pl-3 text-base sm:text-lg md:text-xl font-medium text-foreground opacity-80">
+        {title}
+      </span>
+
+      <span
+        className="text-2xl sm:text-3xl md:text-4xl font-bold"
+        style={{ color: 'hsl(var(--primary))' }}
+      >
+        ₹{displayPrice}
+      </span>
+    </div>
   );
 };
 
