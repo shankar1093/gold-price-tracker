@@ -8,7 +8,7 @@ Required env vars:
     INSTAGRAM_USER_ID, INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USERNAME
     CLOUDFLARE_ACCOUNT_ID
     PHOTOS_S3_BUCKET
-    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY  (R2 API token key/secret)
+    R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY  (R2 API token — separate from AWS creds)
 
 Optional env vars:
     PHOTOS_BASE_URL  — public base URL for the bucket (r2.dev dev URL or custom domain)
@@ -54,8 +54,8 @@ def get_s3_client():
     return boto3.client(
         's3',
         endpoint_url=f'https://{account_id}.r2.cloudflarestorage.com',
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        aws_access_key_id=os.getenv('R2_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY'),
         region_name='auto',
     )
 
