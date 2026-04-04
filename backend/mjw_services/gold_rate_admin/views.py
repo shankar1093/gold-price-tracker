@@ -11,9 +11,11 @@ from .models import Rate, Photo
 
 @require_http_methods(["GET"])
 def get_photos(request):
+    from django.conf import settings
+    base_url = settings.PHOTOS_BASE_URL.rstrip('/')
     photos = Photo.objects.filter(is_active=True)
-    paths = [f'/media/photos/{photo.filename}' for photo in photos]
-    return JsonResponse(paths, safe=False)
+    urls = [f'{base_url}/{photo.filename}' for photo in photos]
+    return JsonResponse(urls, safe=False)
 
 
 def index(request):

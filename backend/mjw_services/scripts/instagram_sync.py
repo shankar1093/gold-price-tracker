@@ -1,8 +1,16 @@
 """
 Weekly Instagram photo sync script.
 
-Downloads photos from Instagram and stores them in the photos directory.
+Downloads photos from Instagram and uploads them to S3.
 Records provenance (source account, original URL, Instagram timestamp) in the database.
+
+Required env vars:
+    INSTAGRAM_USER_ID, INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USERNAME
+    PHOTOS_S3_BUCKET
+    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+
+Optional env vars:
+    PHOTOS_BASE_URL  — override the public base URL (e.g. a CloudFront domain)
 
 Run via cron or ECS scheduled task:
     python scripts/instagram_sync.py
@@ -11,28 +19,38 @@ Run via cron or ECS scheduled task:
 import os
 import sys
 import re
-import uuid
 import django
 import requests
 from datetime import datetime, timezone
 
-# Add the parent directory to sys.path so Django can find its settings
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mjw_services.settings")
 django.setup()
 
-from django.conf import settings
 from gold_rate_admin.models import Photo
 
 INSTAGRAM_API_BASE = "https://graph.instagram.com/v22.0"
-MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024  # 20MB per image
+MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
 
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 def get_sns_client():
     import boto3
     return boto3.client(
         'sns',
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.getenv('AWS_REGION', 'ap-south-1'),
+    )
+
+
+def get_s3_client():
+    import boto3
+    return boto3.client(
+        's3',
         aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
         region_name=os.getenv('AWS_REGION', 'ap-south-1'),
@@ -70,15 +88,15 @@ def fetch_all_media(user_id, access_token):
     return items
 
 
-def safe_filename(instagram_id, media_url):
-    """Derive a stable filename from the Instagram ID and URL extension."""
+def s3_key(instagram_id, media_url):
+    """Derive a stable S3 object key from the Instagram ID and URL extension."""
     ext_match = re.search(r'\.(jpg|jpeg|png|webp)', media_url, re.IGNORECASE)
     ext = ext_match.group(0).lower() if ext_match else '.jpg'
-    return f"{instagram_id}{ext}"
+    return f"photos/{instagram_id}{ext}"
 
 
-def download_image(media_url, dest_path):
-    """Download an image to dest_path. Raises on HTTP error or size exceeded."""
+def download_image_bytes(media_url):
+    """Download image and return (bytes, content_type). Raises if too large."""
     response = requests.get(media_url, timeout=60, stream=True)
     response.raise_for_status()
 
@@ -87,26 +105,46 @@ def download_image(media_url, dest_path):
         response.close()
         raise ValueError(f"Image too large: {content_length} bytes")
 
-    bytes_written = 0
-    with open(dest_path, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            bytes_written += len(chunk)
-            if bytes_written > MAX_IMAGE_SIZE_BYTES:
-                os.remove(dest_path)
-                raise ValueError(f"Image exceeded {MAX_IMAGE_SIZE_BYTES} bytes during download")
-            f.write(chunk)
+    chunks = []
+    total = 0
+    for chunk in response.iter_content(chunk_size=8192):
+        total += len(chunk)
+        if total > MAX_IMAGE_SIZE_BYTES:
+            raise ValueError(f"Image exceeded {MAX_IMAGE_SIZE_BYTES} bytes during download")
+        chunks.append(chunk)
 
+    content_type = response.headers.get('content-type', 'image/jpeg').split(';')[0]
+    return b''.join(chunks), content_type
+
+
+def upload_to_s3(s3_client, bucket, key, data, content_type):
+    """Upload bytes to S3 with public-read ACL so images are directly accessible."""
+    s3_client.put_object(
+        Bucket=bucket,
+        Key=key,
+        Body=data,
+        ContentType=content_type,
+        CacheControl='public, max-age=604800',  # 1 week
+        ACL='public-read',
+    )
+
+
+# ---------------------------------------------------------------------------
+# Main sync
+# ---------------------------------------------------------------------------
 
 def sync_photos():
     user_id = os.getenv('INSTAGRAM_USER_ID')
     access_token = os.getenv('INSTAGRAM_ACCESS_TOKEN')
     username = os.getenv('INSTAGRAM_USERNAME', 'unknown')
+    bucket = os.getenv('PHOTOS_S3_BUCKET')
 
     if not user_id or not access_token:
         raise ValueError("INSTAGRAM_USER_ID and INSTAGRAM_ACCESS_TOKEN must be set")
+    if not bucket:
+        raise ValueError("PHOTOS_S3_BUCKET must be set")
 
-    photos_dir = os.path.join(settings.MEDIA_ROOT, 'photos')
-    os.makedirs(photos_dir, exist_ok=True)
+    s3 = get_s3_client()
 
     print("Fetching media list from Instagram...")
     media_items = fetch_all_media(user_id, access_token)
@@ -129,18 +167,18 @@ def sync_photos():
             error_count += 1
             continue
 
-        filename = safe_filename(instagram_id, media_url)
-        dest_path = os.path.join(photos_dir, filename)
+        key = s3_key(instagram_id, media_url)
 
         try:
-            print(f"  Downloading {instagram_id} -> {filename}")
-            download_image(media_url, dest_path)
+            print(f"  Downloading {instagram_id}...")
+            image_bytes, content_type = download_image_bytes(media_url)
+            print(f"  Uploading to s3://{bucket}/{key}")
+            upload_to_s3(s3, bucket, key, image_bytes, content_type)
         except Exception as e:
-            print(f"  Failed to download {instagram_id}: {e}")
+            print(f"  Failed {instagram_id}: {e}")
             error_count += 1
             continue
 
-        # Parse Instagram's ISO 8601 timestamp
         raw_ts = item.get('timestamp', '')
         try:
             instagram_timestamp = datetime.fromisoformat(raw_ts.replace('Z', '+00:00'))
@@ -149,9 +187,9 @@ def sync_photos():
 
         Photo.objects.create(
             instagram_id=instagram_id,
-            filename=filename,
+            filename=key,                          # S3 object key
             media_type=item.get('media_type', 'IMAGE'),
-            instagram_url=media_url,
+            instagram_url=media_url,               # original Instagram CDN URL
             instagram_permalink=item.get('permalink', ''),
             instagram_timestamp=instagram_timestamp,
             instagram_username=username,
@@ -166,7 +204,7 @@ if __name__ == "__main__":
     try:
         errors = sync_photos()
         if errors:
-            notify_error(f"Instagram sync completed with {errors} download errors. Check logs.")
+            notify_error(f"Instagram sync completed with {errors} upload errors. Check logs.")
     except Exception as e:
         print(f"Instagram sync failed: {e}")
         notify_error(f"Instagram sync failed: {e}")

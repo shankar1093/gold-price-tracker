@@ -56,6 +56,8 @@ services:
       INSTAGRAM_USER_ID: ${INSTAGRAM_USER_ID}
       INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
       INSTAGRAM_USERNAME: ${INSTAGRAM_USERNAME}
+      PHOTOS_S3_BUCKET: ${PHOTOS_S3_BUCKET}
+      PHOTOS_BASE_URL: ${PHOTOS_BASE_URL:-}
     env_file:
     - .env.development
     ports:
@@ -64,7 +66,6 @@ services:
       - ./backend/mjw_services:/usr/src/app
       - ./backend/mjw_services/wait-for-it.sh:/usr/src/app/wait-for-it.sh
       - ./backend/mjw_services/entrypoint.dev.sh:/usr/src/app/entrypoint.dev.sh
-      - photos_data_dev:/usr/src/app/photos
     working_dir: /usr/src/app
     networks:
       - app-network-dev
@@ -86,7 +87,6 @@ services:
       NODE_ENV: "development"
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "http://python-backend:8000"  # Use service name instead of localhost
-      PUBLIC_BACKEND_URL: "http://localhost:8000"  # Externally accessible URL for media files
       CHOKIDAR_USEPOLLING: "true"  # Enable polling for file changes in Docker
       WATCHPACK_POLLING: "true"
     ports:
@@ -159,4 +159,3 @@ volumes:
   postgres_data_dev:
   redis_data_dev:
   cargo_cache:
-  photos_data_dev:
