@@ -1,6 +1,23 @@
 from django.db import models
 
-# Create your models here.
+
+class Photo(models.Model):
+    instagram_id = models.CharField(max_length=100, unique=True)
+    filename = models.CharField(max_length=255)
+    media_type = models.CharField(max_length=50)  # IMAGE or CAROUSEL_ALBUM
+    instagram_url = models.URLField(max_length=2000)  # original Instagram CDN URL (provenance)
+    instagram_permalink = models.URLField(max_length=500, blank=True, null=True)
+    instagram_timestamp = models.DateTimeField()  # when the photo was posted to Instagram
+    instagram_username = models.CharField(max_length=100)  # source account (provenance)
+    downloaded_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-instagram_timestamp']
+
+    def __str__(self):
+        return f"{self.instagram_id} ({self.instagram_username}) - {self.filename}"
+
 
 class Rate(models.Model):
     date = models.DateField(unique=True)

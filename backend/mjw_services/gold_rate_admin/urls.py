@@ -5,7 +5,8 @@ from .views import (
     admin_login,
     admin_logout,
     admin_status,
-    manual_rate_update
+    manual_rate_update,
+    get_photos,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('admin/logout/', admin_logout, name='admin_logout'),
     path('admin/status/', admin_status, name='admin_status'),
     path('admin/manual-rate/', manual_rate_update, name='manual_rate_update'),
+    path('photos/', get_photos, name='get_photos'),
 ]
