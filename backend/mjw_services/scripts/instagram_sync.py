@@ -6,11 +6,12 @@ Records provenance (source account, original URL, Instagram timestamp) in the da
 
 Required env vars:
     INSTAGRAM_USER_ID, INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USERNAME
+    CLOUDFLARE_ACCOUNT_ID
     PHOTOS_S3_BUCKET
-    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY  (R2 API token key/secret)
 
 Optional env vars:
-    PHOTOS_BASE_URL  — override the public base URL (e.g. a CloudFront domain)
+    PHOTOS_BASE_URL  — public base URL for the bucket (r2.dev dev URL or custom domain)
 
 Run via cron or ECS scheduled task:
     python scripts/instagram_sync.py
