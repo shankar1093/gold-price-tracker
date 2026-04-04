@@ -130,6 +130,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# S3 photo storage
+PHOTOS_S3_BUCKET = os.getenv('PHOTOS_S3_BUCKET', '')
+# Override with a CloudFront URL if you have one, e.g. https://cdn.example.com
+PHOTOS_BASE_URL = os.getenv(
+    'PHOTOS_BASE_URL',
+    f'https://{PHOTOS_S3_BUCKET}.s3.amazonaws.com' if PHOTOS_S3_BUCKET else '',
+)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
