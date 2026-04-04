@@ -62,7 +62,7 @@ const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, si
           </h2>
           <GoldDivider />
           <p className="text-sm opacity-60 tracking-wide">
-            Price Updated: {data.date} &nbsp;·&nbsp; Prices per gram · Inclusive of GST
+            Price Updated: {data.date} &nbsp;·&nbsp; Prices per gram · Exclusive of GST
           </p>
         </div>
 

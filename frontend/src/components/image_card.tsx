@@ -1,47 +1,39 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Slider from 'react-slick';
-import { Image } from "@nextui-org/image";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 interface ImageCardProps {
   className?: string;
-  style?: React.CSSProperties; 
+  style?: React.CSSProperties;
 }
 
+// Only show images with a near-square or landscape aspect ratio (between 0.8 and 1.25).
+// Everything else (tall portraits, panoramas) is excluded.
+const ASPECT_MIN = 0.8;
+const ASPECT_MAX = 1.25;
+
+const getAspectRatio = (url: string): Promise<number | null> =>
+  new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img.width / img.height);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
 
 const ImageCard: React.FC<ImageCardProps> = (props) => {
   const [images, setImages] = useState<string[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<Slider>(null);
-  const [slidesToShow, setSlidesToShow] = useState(3);
 
-
-  const isTallImage = (imageUrl: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new window.Image(); // Use native Image constructor
-      img.onload = () => {
-        const aspectRatio = img.width / img.height;
-        console.log(aspectRatio)
-        resolve(aspectRatio < 1.0);
-      };
-      img.onerror = () => resolve(false);
-      img.src = imageUrl;
-    });
-  };
-  
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        // Check if we have cached data
-        
-        const cached = localStorage.getItem('instagram_photos');
-        const cacheTimestamp = localStorage.getItem('instagram_photos_timestamp');
-        const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+        const cached = localStorage.getItem('mjw_photos');
+        const cacheTimestamp = localStorage.getItem('mjw_photos_timestamp');
+        const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
-        // Use cached data if it exists and is not expired
         if (cached && cacheTimestamp) {
-          console.log("using cached data")
           const isExpired = Date.now() - parseInt(cacheTimestamp) > CACHE_DURATION;
           if (!isExpired) {
             setImages(JSON.parse(cached));
@@ -49,104 +41,77 @@ const ImageCard: React.FC<ImageCardProps> = (props) => {
           }
         }
 
-        // Fetch new data if cache is missing or expired
-        // Use Cloudflare Worker URL for static export, fallback to local API for dev
-        const instagramApiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/instagram_photos';
-        const response = await fetch(instagramApiUrl);
-        const data = await response.json();
-        
+        const apiUrl = process.env.NEXT_PUBLIC_INSTAGRAM_API_URL || '/api/photos';
+        const response = await fetch(apiUrl);
+        const data: string[] = await response.json();
 
-        const filteredImages = [];
-        for (const imageUrl of data) {
-          const isTall = await isTallImage(imageUrl);
-          if (!isTall) {
-            filteredImages.push(imageUrl);
+        // Filter to only near-square / landscape images; force consistent crop via CSS.
+        const qualified: string[] = [];
+        for (const url of data) {
+          const ratio = await getAspectRatio(url);
+          if (ratio !== null && ratio >= ASPECT_MIN && ratio <= ASPECT_MAX) {
+            qualified.push(url);
           }
         }
-        // Update state and cache
-        setImages(filteredImages);
-        localStorage.setItem('instagram_photos', JSON.stringify(data));
-        localStorage.setItem('instagram_photos_timestamp', Date.now().toString());
+
+        setImages(qualified);
+        localStorage.setItem('mjw_photos', JSON.stringify(qualified));
+        localStorage.setItem('mjw_photos_timestamp', Date.now().toString());
       } catch (error) {
         console.error('Error fetching images:', error);
-        // If fetch fails, try to use cached data as fallback
-        const cached = localStorage.getItem('instagram_photos');
-        if (cached) {
-          setImages(JSON.parse(cached));
-        }
+        const cached = localStorage.getItem('mjw_photos');
+        if (cached) setImages(JSON.parse(cached));
       }
     };
+
     fetchImages();
-
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const newSlidesToShow = width >= 1180 ? 3 : width >= 768 ? 2 : 1;
-      setSlidesToShow(newSlidesToShow);
-
-      if (sliderRef.current && sliderRef.current.slickGoTo) {
-        sliderRef.current.slickGoTo(currentSlide);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, [currentSlide]);
+  }, []);
 
   const settings = {
-    centerMode: false,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
     infinite: true,
-    vertical: false,
     speed: 500,
     arrows: false,
     dots: false,
-    fade:true,
+    fade: true,
     pauseOnHover: false,
-    cssEase: "linear",
+    cssEase: 'linear',
     afterChange: (current: number) => setCurrentSlide(current),
   };
 
-  const customPaging = useCallback(() => {
-    return (
-      <div className="w-2 h-2 mx-1 rounded-full bg-gray-300 hover:bg-gray-400" />
-    );
-  }, []);
-
-  
-
-  const getSlideStyle = (index: number) => {
-    const isActive = index === currentSlide;
-    return {
-      transform: isActive ? 'scale(1)' : 'scale(0.9)',
-      filter: isActive ? 'brightness(100%)' : 'brightness(70%)',
-      transition: isActive ? 'all 0.3s ease-in-out' : 'all 0.3s ease-in-out'
-    };
-  };
-
   return (
-    <div className={`w-full h-full ${props.className}`} style={props.style}>
+    <div className={`w-full ${props.className ?? ''}`} style={props.style}>
       {images.length > 0 ? (
-        <Slider ref={sliderRef} {...settings} className="h-full" customPaging={customPaging}>
-          {images.map((image, index) => (
-            <div key={index} className="h-full flex items-center justify-center">
-              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-                <Image
+        <Slider ref={sliderRef} {...settings}>
+          {images.map((url, index) => (
+            <div key={index}>
+              {/* Force every image to a 1:1 square, centre-cropped */}
+              <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
+                <img
+                  src={url}
                   alt={`MJW Jewellery ${index + 1}`}
-                  src={image}
-                  className="object-cover w-full h-full"
-                  style={{ maxHeight: '100%', maxWidth: '100%' }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
                 />
               </div>
             </div>
           ))}
         </Slider>
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200">
-          <span>Loading images...</span>
+        <div
+          className="w-full flex items-center justify-center"
+          style={{ aspectRatio: '1 / 1', background: 'hsl(var(--muted))' }}
+        >
+          <span className="text-sm opacity-50">Loading images…</span>
         </div>
       )}
     </div>
