@@ -49,11 +49,13 @@ def get_sns_client():
 
 def get_s3_client():
     import boto3
+    account_id = os.getenv('CLOUDFLARE_ACCOUNT_ID')
     return boto3.client(
         's3',
+        endpoint_url=f'https://{account_id}.r2.cloudflarestorage.com',
         aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-        region_name=os.getenv('AWS_REGION', 'ap-south-1'),
+        region_name='auto',
     )
 
 
@@ -118,14 +120,14 @@ def download_image_bytes(media_url):
 
 
 def upload_to_s3(s3_client, bucket, key, data, content_type):
-    """Upload bytes to S3 with public-read ACL so images are directly accessible."""
+    """Upload bytes to R2. Public access is controlled at the bucket level
+    in the Cloudflare dashboard — no per-object ACL needed."""
     s3_client.put_object(
         Bucket=bucket,
         Key=key,
         Body=data,
         ContentType=content_type,
         CacheControl='public, max-age=604800',  # 1 week
-        ACL='public-read',
     )
 
 
