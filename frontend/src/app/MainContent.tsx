@@ -61,8 +61,19 @@ const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, si
             Today&apos;s Gold &amp; Silver Rates
           </h2>
           <GoldDivider />
-          <p className="text-sm opacity-60 tracking-wide">
-            Price Updated: {data.date} &nbsp;·&nbsp; Prices per gram · Exclusive of GST
+
+          {/* Date badge — clearly visible */}
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium"
+            style={{ background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
+          >
+            <span style={{ color: '#D1B000' }}>◆</span>
+            Price Updated: {data.date}
+            <span style={{ color: '#D1B000' }}>◆</span>
+          </div>
+
+          <p className="text-xs opacity-50 tracking-wide">
+            Prices per gram &nbsp;·&nbsp; Inclusive of GST
           </p>
         </div>
 
@@ -77,15 +88,12 @@ const MainContent: React.FC<HomePageProps> = ({ gold18kt, gold22kt, gold24kt, si
             <PriceCard title="Silver Price"    price={data.silver} />
           </div>
 
-          {/* Image carousel */}
+          {/* Image carousel — square crop, gold border */}
           <div className="hidden lg:flex w-full lg:w-1/2 flex-col gap-2">
-            <div
-              className="rounded-lg overflow-hidden border-2 flex-1"
-              style={{ borderColor: 'hsl(42,40%,80%)' }}
-            >
-              <ImageCard className="w-full h-full" />
+            <div className="rounded-lg overflow-hidden border-2" style={{ borderColor: '#D1B000' }}>
+              <ImageCard className="w-full" />
             </div>
-            <p className="text-xs text-center opacity-40 tracking-wide">Our Collection</p>
+            <p className="text-xs text-center opacity-40 tracking-widest uppercase">Our Collection</p>
           </div>
 
         </div>
