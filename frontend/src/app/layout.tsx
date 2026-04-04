@@ -1,23 +1,25 @@
-"use client";  // Add this directive at the top if required for client-side features
+"use client";
 
 import React, { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
+import { Raleway } from 'next/font/google';
 import { cn } from '../../lib/utils';
 import './globals.css';
 import Footer from '../components/footer';
 import Header from '../components/header';
 
-
-const fontHeading = Inter({
+// Raleway — brand-specified digital font
+const fontHeading = Raleway({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-heading',
+  weight: ['600', '700', '800'],
 });
 
-const fontBody = Inter({
+const fontBody = Raleway({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
+  weight: ['400', '500'],
 });
 
 interface LayoutProps {

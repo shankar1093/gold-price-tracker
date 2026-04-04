@@ -4,26 +4,32 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    /* Exact brand colors from MJW Brand Guidelines */
+    --background: 0 15% 94%;           /* #F1ECEC — brand background */
+    --foreground: 354 34% 18%;         /* dark maroon for text */
+    --card: 0 0% 100%;                 /* white cards */
+    --card-foreground: 354 34% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 354 34% 27%;
-    --primary-foreground: 355.7 100% 99%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 45%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 354 34% 18%;
+    --primary: 354 42% 27%;            /* #5E2E33 — brand maroon */
+    --primary-foreground: 0 15% 94%;   /* #F1ECEC on dark bg */
+    --secondary: 0 15% 94%;            /* #F1ECEC */
+    --secondary-foreground: 354 42% 27%;
+    --muted: 0 10% 90%;
+    --muted-foreground: 354 15% 45%;
+    --accent: 0 15% 94%;
+    --accent-foreground: 354 42% 27%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 346.8 77.2% 49.8%;
+    --border: 354 15% 85%;             /* warm pinkish-grey border */
+    --input: 354 15% 85%;
+    --ring: 354 42% 27%;
     --radius: 0.5rem;
+
+    /* Brand gold accent — #D1B000 */
+    --gold: 50 100% 41%;
+    --gold-light: 50 90% 55%;
+    --gold-muted: 50 50% 88%;
   }
 }
 
