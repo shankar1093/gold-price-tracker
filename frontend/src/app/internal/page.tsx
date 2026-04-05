@@ -1,12 +1,15 @@
 import React from 'react';
 import MainContent from './MainContent';
 
+// Tell Next.js this route is statically generated at build time
+export const dynamic = 'force-static';
+
 const HomePage = async () => {
   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
 
   let prices = { gold18kt: 0, gold22kt: 0, gold24kt: 0, silver: 0 };
   try {
-    const res = await fetch(`${backendUrl}/gold_rate_admin/metal-rate/`, { cache: 'no-store' });
+    const res = await fetch(`${backendUrl}/gold_rate_admin/metal-rate/`, { cache: 'force-cache' });
     if (res.ok) {
       const data = await res.json();
       prices = {
@@ -22,7 +25,7 @@ const HomePage = async () => {
 
   let photos: string[] = [];
   try {
-    const res = await fetch(`${backendUrl}/gold_rate_admin/photos/`, { cache: 'no-store' });
+    const res = await fetch(`${backendUrl}/gold_rate_admin/photos/`, { cache: 'force-cache' });
     if (res.ok) photos = await res.json();
   } catch (e) {
     console.error('Build-time photo fetch failed (internal):', e);
