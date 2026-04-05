@@ -1,5 +1,3 @@
-"use client";
-
 import React, { ReactNode } from 'react';
 import { Raleway } from 'next/font/google';
 import { cn } from '../../lib/utils';
