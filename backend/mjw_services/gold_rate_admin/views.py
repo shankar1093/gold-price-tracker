@@ -12,7 +12,36 @@ from .models import Rate, Photo
 @require_http_methods(["GET"])
 def get_photos(request):
     from django.conf import settings
+    import boto3, os
+
     base_url = settings.PHOTOS_BASE_URL.rstrip('/')
+    bucket   = settings.PHOTOS_S3_BUCKET
+    account_id = os.getenv('CLOUDFLARE_ACCOUNT_ID', '')
+
+    # List objects directly from R2 so any environment with credentials
+    # returns photos without needing local DB records.
+    if bucket and account_id:
+        try:
+            s3 = boto3.client(
+                's3',
+                endpoint_url=f'https://{account_id}.r2.cloudflarestorage.com',
+                aws_access_key_id=os.getenv('R2_ACCESS_KEY_ID'),
+                aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY'),
+                region_name='auto',
+            )
+            paginator = s3.get_paginator('list_objects_v2')
+            keys = []
+            for page in paginator.paginate(Bucket=bucket):
+                for obj in page.get('Contents', []):
+                    keys.append(obj['Key'])
+            urls = [f'{base_url}/{key}' for key in sorted(keys)]
+            return JsonResponse(urls, safe=False)
+        except Exception as e:
+            # Fall through to DB-based lookup on error
+            import logging
+            logging.getLogger(__name__).warning('R2 list failed, falling back to DB: %s', e)
+
+    # Fallback: use DB records (production path or when R2 creds unavailable)
     photos = Photo.objects.filter(is_active=True)
     urls = [f'{base_url}/{photo.filename}' for photo in photos]
     return JsonResponse(urls, safe=False)
