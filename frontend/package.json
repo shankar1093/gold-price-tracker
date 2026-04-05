@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "STATIC_EXPORT=true next build",
+    "build:static": "NODE_ENV=production STATIC_EXPORT=true next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
