@@ -1,8 +1,8 @@
 import React from 'react';
 import MainContent from './MainContent';
 
-// Tell Next.js this route is statically generated at build time
-export const dynamic = 'force-static';
+// Tell Next.js this route is dynamically rendered on every request
+export const dynamic = 'force-dynamic';
 
 const HomePage = async () => {
   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
@@ -11,7 +11,7 @@ const HomePage = async () => {
   let prices = { gold18kt: 0, gold22kt: 0, gold24kt: 0, silver: 0 };
   try {
     const res = await fetch(`${backendUrl}/gold_rate_admin/metal-rate/`, {
-      cache: 'force-cache',
+      cache: 'no-store',
     });
     if (res.ok) {
       const data = await res.json();
@@ -30,7 +30,7 @@ const HomePage = async () => {
   let photos: string[] = [];
   try {
     const res = await fetch(`${backendUrl}/gold_rate_admin/photos/`, {
-      cache: 'force-cache',
+      cache: 'no-store',
     });
     if (res.ok) photos = await res.json();
   } catch (e) {
