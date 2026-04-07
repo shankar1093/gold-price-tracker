@@ -1,0 +1,23 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+CMD sh -c '\
+  echo "Waiting for backend..." && \
+  until curl -sf http://python-backend:8000/gold_rate_admin/metal-rate/ > /dev/null 2>&1; do \
+    sleep 5; \
+  done && \
+  echo "Backend ready. Building static export..." && \
+  STATIC_EXPORT=true BACKEND_URL=http://python-backend:8000 npm run build:static && \
+  echo "Deploying to Cloudflare Pages..." && \
+  npx wrangler pages deploy out --project-name gold-price-tracker'
