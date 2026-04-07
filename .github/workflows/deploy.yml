@@ -102,6 +102,16 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:latest \
           --push frontend
 
+    - name: Create ECR repository for static builder if needed
+      if: ${{ !inputs.skip_build }}
+      run: |
+        aws ecr describe-repositories \
+          --repository-names gold-price-tracker-static-builder \
+          --region ${{ env.AWS_REGION }} || \
+        aws ecr create-repository \
+          --repository-name gold-price-tracker-static-builder \
+          --region ${{ env.AWS_REGION }}
+
     - name: Build and push Static Builder image
       if: ${{ !inputs.skip_build }}
       env:
