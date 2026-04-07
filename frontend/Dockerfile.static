@@ -20,4 +20,4 @@ CMD sh -c '\
   echo "Backend ready. Building static export..." && \
   STATIC_EXPORT=true BACKEND_URL=http://python-backend:8000 npm run build:static && \
   echo "Deploying to Cloudflare Pages..." && \
-  npx wrangler pages deploy out --project-name mjw-website'
+  npx wrangler pages deploy out --project-name gold-price-tracker'
