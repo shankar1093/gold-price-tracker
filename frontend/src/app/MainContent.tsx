@@ -44,7 +44,7 @@ const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt,
           </div>
 
           <p className="text-xs opacity-50 tracking-wide">
-            Prices per gram &nbsp;·&nbsp; Inclusive of GST
+            Prices per gram &nbsp;·&nbsp; Exclusive of GST
           </p>
         </div>
 
