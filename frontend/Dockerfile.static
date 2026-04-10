@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl git
 
 WORKDIR /app
 
@@ -20,4 +20,15 @@ CMD sh -c '\
   echo "Backend ready. Building static export..." && \
   STATIC_EXPORT=true BACKEND_URL=http://python-backend:8000 npm run build:static && \
   echo "Deploying to Cloudflare Pages..." && \
-  npx wrangler pages deploy out --project-name gold-price-tracker'
+  npx wrangler pages deploy out --project-name gold-price-tracker && \
+  echo "Deploying internal page to GitHub Pages..." && \
+  mkdir -p /tmp/gh-pages && \
+  cp -r out/internal/. /tmp/gh-pages/ && \
+  echo "internal.mjw.co.in" > /tmp/gh-pages/CNAME && \
+  cd /tmp/gh-pages && \
+  git init && \
+  git config user.email "github-actions@github.com" && \
+  git config user.name "GitHub Actions" && \
+  git add -A && \
+  git commit -m "Deploy internal page [skip ci]" && \
+  git push --force https://x-access-token:${GITHUB_TOKEN}@github.com/shankar1093/gold-price-tracker.git HEAD:gh-pages'
