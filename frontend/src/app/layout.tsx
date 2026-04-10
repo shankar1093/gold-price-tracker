@@ -2,6 +2,12 @@ import React from 'react';
 import './globals.css';
 import Footer from '../components/footer';
 import Header from '../components/header';
+import type { Viewport } from 'next';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
