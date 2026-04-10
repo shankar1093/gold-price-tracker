@@ -208,10 +208,12 @@ jobs:
           # Pull latest static builder image
           sudo docker pull 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-static-builder:latest
 
-          # Run the static builder — connects to python-backend over the ECS bridge network
+          # Run the static builder — uses host network so python-backend resolves to localhost
           sudo docker run --rm \
-            --network $(sudo docker inspect python-backend --format '{{ "{{" }}range $k,$v := .NetworkSettings.Networks{{ "}}" }}{{ "{{" }}$k{{ "}}" }}{{ "{{" }}end{{ "}}" }}') \
+            --network host \
+            --add-host python-backend:127.0.0.1 \
             -e CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} \
+            -e CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }} \
             263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-static-builder:latest
 
     - name: Stop EC2 instance
