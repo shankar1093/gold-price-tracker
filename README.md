@@ -45,3 +45,6 @@ Deployment
 
 Refer to `.github/workflows/deploy.yml` for details regarding how when the main branch is updated gh actions will push the new images to ecr and then ecs will deploy those images to an ec2 instance. 
 
+Application Flow
+
+The scheduled task in aws eventbrdige will start the ec2 instance, after 15 minutes a cron job in the ec2 instance will spin up the `static` image and push a static build to cloudfare pages. Fifteen minutes later a scheduled task will run the stopec2 lambda that will shut down the ec2 instance
