@@ -2,13 +2,214 @@
     "family": "gold-price-tracker",
     "containerDefinitions": [
         {
-            "name": "backend",
-            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-backend:latest",
-            "cpu": 128,
-            "memory": 256,
+            "name": "frontend",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest",
+            "cpu": 64,
+            "memory": 128,
+            "links": [
+                "rust-backend",
+                "python-backend"
+            ],
             "portMappings": [
                 {
-                    "name": "backend-8080-tcp",
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "NEXT_PUBLIC_BACKEND_URL",
+                    "value": "http://python-backend:8000"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "frontend"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "python-backend",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-python-backend:latest",
+            "cpu": 64,
+            "memory": 512,
+            "links": [
+                "db",
+                "rust-backend"
+            ],
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "POSTGRES_USER",
+                    "value": "rate_service"
+                },
+                {
+                    "name": "INSTAGRAM_USER_ID",
+                    "value": "17841451318356670"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "value": "p_WyfqKq3."
+                },
+                {
+                    "name": "R2_ACCESS_KEY_ID",
+                    "value": "c918c2e8058b69a7a09e8b29c1eb8227"
+                },
+                {
+                    "name": "POSTGRES_DB",
+                    "value": "mjw"
+                },
+                {
+                    "name": "PHOTOS_BASE_URL",
+                    "value": "https://photos.mjw.co.in"
+                },
+                {
+                    "name": "DJANGO_SETTINGS_MODULE",
+                    "value": "mjw_services.settings"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "value": "postgres://rate_service:p_WyfqKq3.@db:5432/mjw"
+                },
+                {
+                    "name": "R2_SECRET_ACCESS_KEY",
+                    "value": "ea90a933172d024ccd6e7f3225f6e3b99038e0e23649fb2809ed14da34f9fc2a"
+                },
+                {
+                    "name": "PHOTOS_S3_BUCKET",
+                    "value": "mjw-instagram-photos"
+                },
+                {
+                    "name": "INSTAGRAM_ACCESS_TOKEN",
+                    "value": "IGQWRadkxvN3V6OFhLcTBEelVNRHp2NVdMTGdLaHgtSEtPUEVFVmRVNHBMSldBMFktcG1vNGVvNldBeGFuU1M1Wk1BLWdWUC1rM0pIQkxNNHFySFpTRlJQcVZAiNXlIM2pYMjhwMEotUjV3dmpKMG9VNTlyUUw2anMZD"
+                },
+                {
+                    "name": "CLOUDFLARE_ACCOUNT_ID",
+                    "value": "85896a9979ba0103e0704a7e203a8934"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "p_WyfqKq3."
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "python-backend"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "frontend-internal",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest",
+            "cpu": 64,
+            "memory": 128,
+            "links": [
+                "rust-backend",
+                "python-backend"
+            ],
+            "portMappings": [],
+            "essential": false,
+            "environment": [
+                {
+                    "name": "NEXT_PUBLIC_BACKEND_URL",
+                    "value": "http://python-backend:8000"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "INTERNAL_MODE",
+                    "value": "true"
+                },
+                {
+                    "name": "HOSTNAME",
+                    "value": "0.0.0.0"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "frontend-internal"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "cloudflared",
+            "image": "cloudflare/cloudflared:latest",
+            "cpu": 32,
+            "memory": 64,
+            "links": [
+                "frontend-internal"
+            ],
+            "portMappings": [],
+            "essential": false,
+            "command": [
+                "tunnel",
+                "run"
+            ],
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "TUNNEL_TOKEN",
+                    "valueFrom": "arn:aws:secretsmanager:ap-south-1:263095946180:secret:cloudflare-tunnel-token-mf4MdC"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "frontend-internal",
+                    "condition": "START"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "cloudflared"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "rust-backend",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-rust-backend:latest",
+            "cpu": 64,
+            "memory": 128,
+            "portMappings": [
+                {
                     "containerPort": 8080,
                     "hostPort": 8080,
                     "protocol": "tcp"
@@ -28,63 +229,121 @@
                 "options": {
                     "awslogs-group": "/ecs/gold-price-tracker",
                     "awslogs-region": "ap-south-1",
-                    "awslogs-stream-prefix": "backend"
+                    "awslogs-stream-prefix": "rust-backend"
                 }
             },
             "systemControls": []
         },
         {
-            "name": "frontend",
-            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest",
-            "cpu": 128,
-            "memory": 256,
+            "name": "db",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-postgres:latest",
+            "cpu": 64,
+            "memory": 128,
             "portMappings": [
                 {
-                    "name": "frontend-3000-tcp",
-                    "containerPort": 3000,
-                    "hostPort": 3000,
+                    "containerPort": 5432,
+                    "hostPort": 5432,
                     "protocol": "tcp"
                 }
             ],
             "essential": true,
             "environment": [
                 {
-                    "name": "HOSTNAME",
-                    "value": "0.0.0.0"
+                    "name": "POSTGRES_USER",
+                    "value": "rate_service"
                 },
                 {
-                    "name": "NODE_ENV",
-                    "value": "production"
+                    "name": "POSTGRES_PASSWORD",
+                    "value": "p_WyfqKq3."
                 },
                 {
-                    "name": "BACKEND_URL",
-                    "value": "http://backend:8080"
+                    "name": "POSTGRES_INITDB_ARGS",
+                    "value": "--data-checksums"
+                },
+                {
+                    "name": "POSTGRES_DB",
+                    "value": "mjw"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "p_WyfqKq3."
                 }
             ],
-            "mountPoints": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "postgres-data",
+                    "containerPath": "/var/lib/postgresql/data",
+                    "readOnly": false
+                }
+            ],
             "volumesFrom": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "/ecs/gold-price-tracker",
                     "awslogs-region": "ap-south-1",
-                    "awslogs-stream-prefix": "frontend"
+                    "awslogs-stream-prefix": "db"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "static-builder",
+            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-static-builder:latest",
+            "cpu": 64,
+            "memory": 128,
+            "links": [
+                "python-backend"
+            ],
+            "portMappings": [],
+            "essential": false,
+            "environment": [
+                {
+                    "name": "CLOUDFLARE_ACCOUNT_ID",
+                    "value": "85896a9979ba0103e0704a7e203a8934"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "CLOUDFLARE_API_TOKEN",
+                    "valueFrom": "arn:aws:secretsmanager:ap-south-1:263095946180:secret:cloudflare-api-token-REPLACE_ME"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "python-backend",
+                    "condition": "START"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/gold-price-tracker",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "static-builder"
                 }
             },
             "systemControls": []
         }
     ],
     "executionRoleArn": "arn:aws:iam::263095946180:role/ecsTaskExecutionRole",
-    "cpu": "256",
-    "memory": "512",
-    "requiresCompatibilities": ["EC2"],
-    "networkConfiguration": {
-        "awsvpcConfiguration": {
-            "subnets": ["subnet-0967d4049ba6c55fd", "subnet-00785d6c964df9555","subnet-05da23c69d39d6fa5","subnet-0aae4483cc160d31d"],  
-            "securityGroups": ["sg-92bdf5fa"], 
-            "assignPublicIp": "ENABLED"
+    "networkMode": "bridge",
+    "volumes": [
+        {
+            "name": "postgres-data",
+            "host": {
+                "sourcePath": "/ecs/postgres-data"
+            }
         }
-    },
+    ],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "416",
+    "memory": "896",
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
