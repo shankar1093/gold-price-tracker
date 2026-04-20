@@ -287,46 +287,6 @@
             },
             "systemControls": []
         },
-        {
-            "name": "static-builder",
-            "image": "263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-static-builder:latest",
-            "cpu": 64,
-            "memory": 128,
-            "links": [
-                "python-backend"
-            ],
-            "portMappings": [],
-            "essential": false,
-            "environment": [
-                {
-                    "name": "CLOUDFLARE_ACCOUNT_ID",
-                    "value": "85896a9979ba0103e0704a7e203a8934"
-                }
-            ],
-            "mountPoints": [],
-            "volumesFrom": [],
-            "secrets": [
-                {
-                    "name": "CLOUDFLARE_API_TOKEN",
-                    "valueFrom": "arn:aws:secretsmanager:ap-south-1:263095946180:secret:cloudflare-api-token-REPLACE_ME"
-                }
-            ],
-            "dependsOn": [
-                {
-                    "containerName": "python-backend",
-                    "condition": "START"
-                }
-            ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/gold-price-tracker",
-                    "awslogs-region": "ap-south-1",
-                    "awslogs-stream-prefix": "static-builder"
-                }
-            },
-            "systemControls": []
-        }
     ],
     "executionRoleArn": "arn:aws:iam::263095946180:role/ecsTaskExecutionRole",
     "networkMode": "bridge",
@@ -342,8 +302,8 @@
     "requiresCompatibilities": [
         "EC2"
     ],
-    "cpu": "416",
-    "memory": "896",
+    "cpu": "352",
+    "memory": "768",
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
