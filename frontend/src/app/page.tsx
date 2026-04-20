@@ -1,8 +1,7 @@
 import React from 'react';
 import MainContent from './MainContent';
 
-// Tell Next.js this route is dynamically rendered on every request
-export const dynamic = 'force-dynamic';
+export const dynamic = process.env.STATIC_EXPORT === 'true' ? 'force-static' : 'force-dynamic';
 
 const HomePage = async () => {
   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
