@@ -175,7 +175,17 @@ async fn aggregate_gold_price(state: SharedState) {
 }
 
 #[get("/live_rate")]
-async fn get_live_rate(state: web::Data<SharedState>) -> impl Responder {
+async fn get_live_rate(req:HttpRequest, state: web::Data<SharedState>) -> impl Responder {
+    let x_api_key = req.headers().get("X-API-Key")
+    .and_then(|v| v.to_str().ok())
+    .unwrap_or("");
+
+    let secret = std::env::var("API_SECRET").unwrap_or_default();
+
+    if x_api_key!=secret {
+        return HttpResponse::Unauthorized().finish();
+    }
+
     let prices = state.lock().unwrap();
     let rate = adjudicate(&prices);
     HttpResponse::Ok().json(rate)
