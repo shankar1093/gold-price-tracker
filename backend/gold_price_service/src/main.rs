@@ -1,4 +1,4 @@
-use actix_web::{get, web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{get, web, App, HttpServer, HttpRequest, HttpResponse, Responder};
 use reqwest;
 use serde::{Serialize, Deserialize};
 use std::sync::{Arc, Mutex};
@@ -205,7 +205,17 @@ async fn get_gold_price_stream(state: web::Data<SharedState>) -> impl Responder 
 }
 
 #[get("/live_rate_stream")]
-async fn get_live_rate_stream(state: web::Data<SharedState>) -> impl Responder {
+async fn get_live_rate_stream(req: HttpRequest, state: web::Data<SharedState>) -> impl Responder {
+    let x_api_key = req.headers().get("X-API-Key")
+    .and_then(|v| v.to_str().ok())
+    .unwrap_or("");
+
+    let secret = std::env::var("API_SECRET").unwrap_or_default();
+
+    if x_api_key!=secret {
+        return HttpResponse::Unauthorized().finish();
+    }
+
     let stream = stream! {
         let mut interval = time::interval(Duration::from_secs(1));
         loop {
@@ -216,6 +226,8 @@ async fn get_live_rate_stream(state: web::Data<SharedState>) -> impl Responder {
             yield Ok::<_, actix_web::Error>(Bytes::from(format!("data: {}\n\n", data)));
         }
     };
+    
+
 
     HttpResponse::Ok()
         .insert_header(header::ContentType(mime::TEXT_EVENT_STREAM))
