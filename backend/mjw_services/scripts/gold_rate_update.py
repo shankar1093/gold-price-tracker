@@ -132,8 +132,8 @@ def update_metal_rate():
             gold22ktPrice * 1.011
         )  # Increased by 1.1%
         adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.04
-        )  # Increased by 4% since 21/4/26
+            gold24ktPrice * 1.015
+        )  # Increased by 1.5% since 16/5/26, on account of increased Basic Custom Duty
 
         metal_prices["rate_18kt"] = math.floor(adjustedGold18ktPrice)
         metal_prices["rate_22kt"] = math.floor(adjustedGold22ktPrice)
