@@ -6,7 +6,7 @@ import math
 from django.utils import timezone
 import re
 
-# Pre-compile regex pattern to avoid repeated compilation
+# Pre-compile regex pattern to avoid repeated compilation (used for silver)
 WHITESPACE_PATTERN = re.compile(r"\s+")
 
 # Lazy-load boto3 to save ~5-10MB memory in happy path
@@ -35,13 +35,6 @@ django.setup()
 
 # Now you can import your models
 from gold_rate_admin.models import Rate
-
-GOLD_999_SEARCH_TERMS = [
-    "gold 999 with gst",
-    "gold 999 imported with gst",
-    "gold 999 indian-bis with gst",
-    "gold 999 imp (lbma) with gst"
-]
 
 
 def price_adjustment(price):
@@ -77,10 +70,10 @@ def fetch_json_safe(url, timeout=30):
 
 
 def update_metal_rate():
-    backendUrl = "http://rust-backend:8080"  # Adjust this as needed
-    api_url = f"{backendUrl}/gold_price"
+    backendUrl = "http://rust-backend:8080"
+    live_rate_url = f"{backendUrl}/live_rate"
     silver_api_url = f"{backendUrl}/silver_price"
-    today = timezone.now().date()  # Move this line here, outside the try blocks
+    today = timezone.now().date()
     metal_prices = {
         "rate_18kt": None,
         "rate_22kt": None,
@@ -91,49 +84,25 @@ def update_metal_rate():
         "arihant_rate_18kt": None,
         "arihant_silver": None,
     }
+
     def norm(s: str) -> str:
         return WHITESPACE_PATTERN.sub(" ", s.strip().lower())
 
     try:
-        data = fetch_json_safe(api_url)
+        response = requests.get(live_rate_url, timeout=30)
+        response.raise_for_status()
+        rate = response.json()
 
-        gold999WithGst = next(
-            (
-                item
-                for item in data
-                if any(
-                    term in norm(item.get("description", "").lower())
-                    for term in GOLD_999_SEARCH_TERMS
-                )
-            ),
-            None,
-        )
+        if not rate.get("valid"):
+            raise ValueError("live_rate returned invalid=false — no adjudicated price available")
 
-        # Cleanup data after extracting what we need
-        del data
-
-        if gold999WithGst is None:
-            raise ValueError("Couldn't find matching gold price data")
-
-        gold24ktPrice = (
-            float(gold999WithGst["ask"]) / 10
-            if gold999WithGst and gold999WithGst["ask"].isdigit()
-            else 0
-        ) / 1.03
-
-        # Cleanup after extracting price
-        del gold999WithGst
-
-        gold22ktPrice = (920 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
-        gold18ktPrice = (750 / 999) * gold24ktPrice if gold24ktPrice != 0 else 0
+        gold24ktPrice = rate["rate_999_per_gram"]
+        gold22ktPrice = rate["rate_22kt_per_gram"]
+        gold18ktPrice = rate["rate_18kt_per_gram"]
 
         adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.008)
-        adjustedGold22ktPrice = price_adjustment(
-            gold22ktPrice * 1.011
-        )  # Increased by 1.1%
-        adjustedGold24ktPrice = price_adjustment(
-            gold24ktPrice * 1.015
-        )  # Increased by 1.5% since 16/5/26, on account of increased Basic Custom Duty
+        adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.011)
+        adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.015)  # Increased by 1.5% since 16/5/26, on account of increased Basic Custom Duty
 
         metal_prices["rate_18kt"] = math.floor(adjustedGold18ktPrice)
         metal_prices["rate_22kt"] = math.floor(adjustedGold22ktPrice)
@@ -147,7 +116,7 @@ def update_metal_rate():
         get_sns_client().publish(
             TopicArn="arn:aws:sns:ap-south-1:263095946180:GoldRateAlerts",
             Message=f"Error updating gold rate: {str(e)}",
-            Subject="Gold Rate Update Failed, Check the arihant 999 gold description"
+            Subject="Gold Rate Update Failed"
         )
         print(f"Error updating gold rate: {str(e)}")
 
