@@ -175,17 +175,7 @@ async fn aggregate_gold_price(state: SharedState) {
 }
 
 #[get("/live_rate")]
-async fn get_live_rate(req:HttpRequest, state: web::Data<SharedState>) -> impl Responder {
-    let x_api_key = req.headers().get("X-API-Key")
-    .and_then(|v| v.to_str().ok())
-    .unwrap_or("");
-
-    let secret = std::env::var("API_SECRET").unwrap_or_default();
-
-    if x_api_key!=secret {
-        return HttpResponse::Unauthorized().finish();
-    }
-
+async fn get_live_rate(_req:HttpRequest, state: web::Data<SharedState>) -> impl Responder {
     let prices = state.lock().unwrap();
     let rate = adjudicate(&prices);
     HttpResponse::Ok().json(rate)
@@ -215,17 +205,7 @@ async fn get_gold_price_stream(state: web::Data<SharedState>) -> impl Responder 
 }
 
 #[get("/live_rate_stream")]
-async fn get_live_rate_stream(req: HttpRequest, state: web::Data<SharedState>) -> impl Responder {
-    let x_api_key = req.headers().get("X-API-Key")
-    .and_then(|v| v.to_str().ok())
-    .unwrap_or("");
-
-    let secret = std::env::var("API_SECRET").unwrap_or_default();
-
-    if x_api_key!=secret {
-        return HttpResponse::Unauthorized().finish();
-    }
-
+async fn get_live_rate_stream(_req: HttpRequest, state: web::Data<SharedState>) -> impl Responder {
     let stream = stream! {
         let mut interval = time::interval(Duration::from_secs(1));
         loop {
