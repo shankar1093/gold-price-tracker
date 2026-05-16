@@ -126,8 +126,7 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
             let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld");
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
-            let is_coin = desc.contains("coin") || id.contains("coin");
-            is_999 && is_gold && !is_silver && !is_plat && !is_coin && p.ask != "-"
+            is_999 && is_gold && !is_silver && !is_plat && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
@@ -146,8 +145,8 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
         return LiveRate { rate_999_per_gram: 0.0, rate_22kt_per_gram: 0.0, rate_18kt_per_gram: 0.0, valid: false };
     }
 
-    let lowest = candidates.iter().cloned().fold(f64::INFINITY, f64::min);
-    let per_gram = lowest / 10.0;
+    let highest = candidates.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let per_gram = highest / 10.0;
 
     LiveRate {
         rate_999_per_gram: per_gram.round() as f64,
