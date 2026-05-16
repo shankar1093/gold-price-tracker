@@ -123,10 +123,13 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
             let desc = p.description.to_lowercase();
             let id = p.id.to_lowercase();
             let is_999 = desc.contains("999") || id.contains("999");
-            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld");
+            let is_coin = id.starts_with("coin");
+            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld") || is_coin;
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
-            is_999 && is_gold && !is_silver && !is_plat && p.ask != "-"
+            // for RSBL: allow Mumbai spot and coins (which are national, not city-specific)
+            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum") && !is_coin;
+            is_999 && is_gold && !is_silver && !is_plat && !is_rsbl_non_mumbai && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
