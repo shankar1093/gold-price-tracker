@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-10jz497i1n)asy5!3t!a@6n+bqn)&e_#$5xfovbz&^l=437d*p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'python-backend', 'python-backend:8000']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'python-backend', 'python-backend:8000', 'admin.mjw.co.in', 'api.bullion.mjw.co.in', 'bullion.mjw.co.in']
 
 
 # Application definition
