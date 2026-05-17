@@ -4,6 +4,13 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const isInternalMode = process.env.INTERNAL_MODE === 'true';
   const path = request.nextUrl.pathname;
+  const host = request.headers.get('host') ?? '';
+  const isBullionHost = host.startsWith('bullion.');
+
+  // bullion.mjw.co.in root → /bullion
+  if (isBullionHost && path === '/') {
+    return NextResponse.redirect(new URL('/bullion', request.url));
+  }
 
   // If internal mode and accessing root, redirect to /internal
   if (isInternalMode && path === '/') {
