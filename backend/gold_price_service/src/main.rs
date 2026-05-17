@@ -149,11 +149,10 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
         return LiveRate { rate_999_per_10gram: 0.0, rate_22kt_per_10gram: 0.0, rate_18kt_per_10gram: 0.0, valid: false };
     }
 
-    let highest = candidates.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
-    let per_gram = highest / 10.0;
+    let lowest = candidates.iter().cloned().fold(f64::INFINITY, f64::min);
 
     LiveRate {
-        rate_999_per_10gram: (lowest.round() + 50.0) as f64,
+        rate_999_per_10gram: (lowest + 50.0).round() as f64,
         rate_22kt_per_10gram: ((920.0 / 999.0) * lowest).round() as f64,
         rate_18kt_per_10gram: ((750.0 / 999.0) * lowest).round() as f64,
         valid: true,
