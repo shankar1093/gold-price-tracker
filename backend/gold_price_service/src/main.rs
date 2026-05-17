@@ -1,4 +1,5 @@
 use actix_web::{get, web, App, HttpServer, HttpRequest, HttpResponse, Responder};
+use actix_cors::Cors;
 use reqwest;
 use serde::{Serialize, Deserialize};
 use std::sync::{Arc, Mutex};
@@ -37,9 +38,9 @@ struct RsblEntry {
 
 #[derive(Serialize, Debug, Clone)]
 struct LiveRate {
-    rate_999_per_gram: f64,
-    rate_22kt_per_gram: f64,
-    rate_18kt_per_gram: f64,
+    rate_999_per_10gram: f64,
+    rate_22kt_per_10gram: f64,
+    rate_18kt_per_10gram: f64,
     valid: bool,
 }
 
@@ -145,16 +146,16 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
         .collect();
 
     if candidates.is_empty() {
-        return LiveRate { rate_999_per_gram: 0.0, rate_22kt_per_gram: 0.0, rate_18kt_per_gram: 0.0, valid: false };
+        return LiveRate { rate_999_per_10gram: 0.0, rate_22kt_per_10gram: 0.0, rate_18kt_per_10gram: 0.0, valid: false };
     }
 
     let highest = candidates.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
     let per_gram = highest / 10.0;
 
     LiveRate {
-        rate_999_per_gram: per_gram.round() as f64,
-        rate_22kt_per_gram: ((920.0 / 999.0) * per_gram).round() as f64,
-        rate_18kt_per_gram: ((750.0 / 999.0) * per_gram).round() as f64,
+        rate_999_per_10gram: (lowest.round() + 50.0) as f64,
+        rate_22kt_per_10gram: ((920.0 / 999.0) * lowest).round() as f64,
+        rate_18kt_per_10gram: ((750.0 / 999.0) * lowest).round() as f64,
         valid: true,
     }
 }
@@ -172,7 +173,7 @@ async fn aggregate_gold_price(state: SharedState) {
         arihant.extend(safari);
         arihant.extend(rsbl);
         *state.lock().unwrap() = arihant;
-        time::sleep(Duration::from_secs(5)).await;
+        time::sleep(Duration::from_secs(1)).await;
     }
 }
 
@@ -273,7 +274,13 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         App::new()
+            .wrap(cors)
             .app_data(web::Data::new(Arc::clone(&state)))
             .service(get_live_rate)
             .service(get_live_rate_stream)

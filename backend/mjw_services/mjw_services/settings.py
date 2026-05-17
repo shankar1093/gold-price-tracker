@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'mjw',
         'USER': 'rate_service',
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': 'db',
+        'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': '5432',
     }
 }
