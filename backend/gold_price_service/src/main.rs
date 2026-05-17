@@ -128,7 +128,9 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
             let is_coin = desc.contains("coin") || id.contains("coin");
-            is_999 && is_gold && !is_silver && !is_plat && !is_coin && p.ask != "-"
+            // for rsbl, only use mumbai entries
+            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum");
+            is_999 && is_gold && !is_silver && !is_plat && !is_coin && !is_rsbl_non_mumbai && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
@@ -153,7 +155,7 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
 
 
     LiveRate {
-        rate_999_per_10gram: lowest.round() as f64,
+        rate_999_per_10gram: (lowest.round() + 50.0) as f64,
         rate_22kt_per_10gram: ((920.0 / 999.0) * lowest).round() as f64,
         rate_18kt_per_10gram: ((750.0 / 999.0) * lowest).round() as f64,
         valid: true,

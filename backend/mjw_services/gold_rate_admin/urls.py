@@ -7,6 +7,8 @@ from .views import (
     admin_status,
     manual_rate_update,
     get_photos,
+    create_booking,
+    confirm_booking,
 )
 
 urlpatterns = [
@@ -17,4 +19,6 @@ urlpatterns = [
     path('admin/status/', admin_status, name='admin_status'),
     path('admin/manual-rate/', manual_rate_update, name='manual_rate_update'),
     path('photos/', get_photos, name='get_photos'),
+    path('booking/lock/', create_booking, name='create_booking'),
+    path('booking/confirm/<int:lock_id>/', confirm_booking, name='confirm_booking'),
 ]

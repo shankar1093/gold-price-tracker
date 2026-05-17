@@ -50,8 +50,8 @@ class MetalInventory(models.Model):
     
     @property
     def free_grams(self):
-        return self.available_grams - reserved_grams
-        
+        return self.available_grams - self.reserved_grams
+
 class BookingLock(models.Model):
     rate_999 = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -65,7 +65,7 @@ class BookingLock(models.Model):
     def save(self, *args, **kwargs):
         if self.quantity_grams % 100 != 0:
             raise ValueError("Quantity must be a multiple of 100 grams")
-        super.save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def total_value(self):
