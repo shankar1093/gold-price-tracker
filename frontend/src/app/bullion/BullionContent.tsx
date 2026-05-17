@@ -31,7 +31,8 @@ const BullionContent = () => {
   const [lockedRate, setLockedRate] = useState<number | null>(null);
 
   useEffect(() => {
-    const es = new EventSource('http://localhost:8080/live_rate_stream');
+    const rustUrl = process.env.NEXT_PUBLIC_RUST_BACKEND_URL ?? 'http://localhost:8080';
+    const es = new EventSource(`${rustUrl}/live_rate_stream`);
     es.onmessage = (event) => {
       setLiveRate(JSON.parse(event.data));
       setLastUpdated(new Date().toLocaleTimeString('en-IN'));
