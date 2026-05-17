@@ -1,13 +1,13 @@
 version: '3.8'
+
 services:
   db:
-    image: postgres:14
+    image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-postgres:latest
     environment:
       - POSTGRES_DB=mjw
       - POSTGRES_USER=rate_service
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - ./db/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
@@ -20,9 +20,7 @@ services:
       retries: 5
 
   rust_backend:
-    build:
-      context: backend/gold_price_service
-      dockerfile: Dockerfile
+    image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-rust-backend:latest
     environment:
       RUST_LOG: "info"
       API_SECRET: ${API_SECRET}
@@ -33,7 +31,7 @@ services:
       - app-network
 
   python-backend:
-    build: ./backend/mjw_services
+    image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-python-backend:latest
     environment:
       DATABASE_URL: postgres://rate_service:${DB_PASSWORD}@db:5432/mjw
       POSTGRES_USER: rate_service
@@ -57,17 +55,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    entrypoint: ["/usr/src/app/entrypoint.sh"]
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-    volumes:
-      - ./backend/mjw_services:/usr/src/app
-      - ./backend/mjw_services/wait-for-it.sh:/usr/src/app/wait-for-it.sh
-      - ./backend/mjw_services/entrypoint.sh:/usr/src/app/entrypoint.sh
 
   frontend:
-    build:
-      context: frontend/
-      dockerfile: Dockerfile
+    image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest
     environment:
       NODE_ENV: "production"
       HOSTNAME: "0.0.0.0"
