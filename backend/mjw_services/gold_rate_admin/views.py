@@ -164,3 +164,34 @@ def manual_rate_update(request):
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def create_booking(request):
+    quantity_grams = request.POST.get('quantity_grams')
+    customer_name = request.POST.get('customer_name')
+    rust_url = os.getenv('RUST_BACKEND_URL', 'http://localhost:8080')
+    response = requests.get(f'{rust_url}/live_rate')
+    rate_999 = response.json()['rate_999_per_10gram']
+
+    with transaction.atomic():
+        inventory = MetalInventory.objects.select_for_update().get(metal='gold_999')
+        if inventory.free_grams < quantity_grams:
+            return JsonResponse({'error': 'Insufficient inventory'}, status=409)
+        
+        inventory.reserved_grams = quantity_grams
+        inventory.save()
+
+        lock = BookingLock.objects.create(
+            rate_999=rate_999,
+            quantity_grams=quantity_grams,
+            customer_name=customer_name,
+            expires_at=timezone.now() + timedelta(seconds=60)
+        )
+
+        return JsonResponse({
+            'lock_id' = lock.id,
+            'rate_999' = lock.rate_999,
+            'quantity_grams' = lock.quantity_grams,
+            'total_value' = lock.total_value,
+            'expires_at'=lock.expires_at,
+        })
