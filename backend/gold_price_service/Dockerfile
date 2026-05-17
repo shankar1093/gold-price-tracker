@@ -1,5 +1,5 @@
 # Use the official Rust image with Ubuntu 22.04 as a builder
-FROM rust:1.75-slim AS builder
+FROM rust:1.86-slim AS builder
 
 # Install necessary libraries for building
 RUN apt-get update && apt-get install -y libssl-dev pkg-config
