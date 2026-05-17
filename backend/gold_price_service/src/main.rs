@@ -124,13 +124,13 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
             let desc = p.description.to_lowercase();
             let id = p.id.to_lowercase();
             let is_999 = desc.contains("999") || id.contains("999");
-            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld");
+            let is_coin = id.starts_with("coin");
+            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld") || is_coin;
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
-            let is_coin = desc.contains("coin") || id.contains("coin");
-            // for rsbl, only use mumbai entries
-            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum");
-            is_999 && is_gold && !is_silver && !is_plat && !is_coin && !is_rsbl_non_mumbai && p.ask != "-"
+            // for RSBL: allow Mumbai spot and coins (which are national, not city-specific)
+            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum") && !is_coin;
+            is_999 && is_gold && !is_silver && !is_plat && !is_rsbl_non_mumbai && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
@@ -149,10 +149,8 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
         return LiveRate { rate_999_per_10gram: 0.0, rate_22kt_per_10gram: 0.0, rate_18kt_per_10gram: 0.0, valid: false };
     }
 
-    let lowest = candidates.iter().cloned().fold(f64::INFINITY, f64::min);
-    // let per_gram = lowest / 10.0;
-
-
+    let highest = candidates.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let per_gram = highest / 10.0;
 
     LiveRate {
         rate_999_per_10gram: (lowest.round() + 50.0) as f64,
@@ -180,7 +178,7 @@ async fn aggregate_gold_price(state: SharedState) {
 }
 
 #[get("/live_rate")]
-async fn get_live_rate(req:HttpRequest, state: web::Data<SharedState>) -> impl Responder {
+async fn get_live_rate(_req:HttpRequest, state: web::Data<SharedState>) -> impl Responder {
     let prices = state.lock().unwrap();
     let rate = adjudicate(&prices);
     HttpResponse::Ok().json(rate)
@@ -210,7 +208,7 @@ async fn get_gold_price_stream(state: web::Data<SharedState>) -> impl Responder 
 }
 
 #[get("/live_rate_stream")]
-async fn get_live_rate_stream(req: HttpRequest, state: web::Data<SharedState>) -> impl Responder {
+async fn get_live_rate_stream(_req: HttpRequest, state: web::Data<SharedState>) -> impl Responder {
     let stream = stream! {
         let mut interval = time::interval(Duration::from_secs(1));
         loop {

@@ -16,8 +16,6 @@ env:
   AWS_REGION: ap-south-1
   AWS_ACCOUNT_ID: 263095946180
   IMAGE_NAME: gold-price-tracker
-  ECS_CLUSTER: mjw-prod
-  ECS_SERVICE: mjw-retail-micro
 
 jobs:
   deploy:
@@ -156,48 +154,9 @@ jobs:
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-postgres:latest \
           --push db
 
-    - name: Stop containers on EC2 via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        script: |
-          cd /home/ec2-user
-          chmod +x cleanup_docker.sh
-          ./cleanup_docker.sh
-
-    - name: Force ECS Service Update
-      run: |
-        aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --deployment-configuration minimumHealthyPercent=0,maximumPercent=100 --force-new-deployment
-
-    - name: Start ECS agent on EC2 via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        script: |
-          cd /home/ec2-user
-          chmod +x cleanup_docker.sh
-          ./enable_ecs.sh
-
-    - name: Wait for service stability
-      run: |
-        aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
-
-    - name: Stop EC2 instance
-      run: |
-        INSTANCE_ID=$(aws ec2 describe-instances \
-          --filters "Name=ip-address,Values=${{ secrets.EC2_HOST }}" \
-          --query 'Reservations[0].Instances[0].InstanceId' \
-          --output text)
-        aws ec2 stop-instances --instance-ids $INSTANCE_ID
-        echo "✅ EC2 instance $INSTANCE_ID stopped"
-
     - name: Deployment Success Notification
       if: success()
       run: |
-        echo "✅ Deployment successful"
+        echo "✅ Images built and pushed to ECR"
         echo "Commit: ${{ github.sha }}"
 
