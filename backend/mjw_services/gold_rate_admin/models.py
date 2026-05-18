@@ -73,5 +73,14 @@ class BookingLock(models.Model):
 
     def is_expired(self):
         from django.utils import timezone
-
         return timezone.now() > self.expires_at
+
+    def delete(self, *args, **kwargs):
+        if self.status == 'pending':
+            try:
+                inventory = MetalInventory.objects.get(metal='gold_999')
+                inventory.reserved_grams -= self.quantity_grams
+                inventory.save()
+            except MetalInventory.DoesNotExist:
+                pass
+        super().delete(*args, **kwargs)
