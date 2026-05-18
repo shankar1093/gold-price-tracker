@@ -4,7 +4,6 @@ use reqwest;
 use serde::{Serialize, Deserialize};
 use std::sync::{Arc, Mutex};
 use tokio::time::{self, Duration};
-use futures::StreamExt;
 use actix_web::http::header;
 use async_stream::stream;
 use actix_web::web::Bytes;
@@ -42,6 +41,7 @@ struct LiveRate {
     rate_22kt_per_10gram: f64,
     rate_18kt_per_10gram: f64,
     valid: bool,
+    source: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -119,43 +119,55 @@ async fn fetch_rsbl_price() -> Vec<GoldPrice> {
 }
 
 fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
-    let candidates: Vec<f64> = prices.iter()
+    let candidates: Vec<(f64, String)> = prices.iter()
         .filter(|p| {
             let desc = p.description.to_lowercase();
             let id = p.id.to_lowercase();
             let is_999 = desc.contains("999") || id.contains("999");
-            let is_coin = id.starts_with("coin");
-            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld") || is_coin;
+            let is_coin = desc.contains("coin") || id.contains("coin");
+            let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld");
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
-            // for RSBL: allow Mumbai spot and coins (which are national, not city-specific)
-            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum") && !is_coin;
-            is_999 && is_gold && !is_silver && !is_plat && !is_rsbl_non_mumbai && p.ask != "-"
+            let bullion_source = p.source.to_lowercase();
+            // for RSBL: allow only Mumbai spot entries
+            let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum");
+            is_999 && is_gold && !is_silver && !is_plat && !is_coin && !is_rsbl_non_mumbai && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
             // small retail gram entries are < 100,000; base spot entries are > 100,000 (per 10gm)
             if ask < 100_000.0 { return None; }
             let desc = p.description.to_lowercase();
-            if desc.contains("with gst") {
-                Some(ask / 1.03)
+            let normalized_price = if desc.contains("with gst") {
+                ask / 1.03
             } else {
-                Some(ask)
-            }
+                ask
+            };
+            Some((normalized_price, p.source.clone()))
         })
         .collect();
 
     if candidates.is_empty() {
-        return LiveRate { rate_999_per_10gram: 0.0, rate_22kt_per_10gram: 0.0, rate_18kt_per_10gram: 0.0, valid: false };
+        return LiveRate { rate_999_per_10gram: 0.0, rate_22kt_per_10gram: 0.0, rate_18kt_per_10gram: 0.0, valid: false, source: "unknown".into() };
     }
+    let lowest = candidates.iter().min_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
 
-    let lowest = candidates.iter().cloned().fold(f64::INFINITY, f64::min);
-
-    LiveRate {
-        rate_999_per_10gram: (lowest + 50.0).round() as f64,
-        rate_22kt_per_10gram: ((920.0 / 999.0) * lowest).round() as f64,
-        rate_18kt_per_10gram: ((750.0 / 999.0) * lowest).round() as f64,
-        valid: true,
+    if let Some((price, source)) = lowest {
+        LiveRate {
+            rate_999_per_10gram: (price+50.0).round(),
+            rate_22kt_per_10gram: ((920.0 / 999.0) * price).round(),
+            rate_18kt_per_10gram: ((750.0 / 999.0) * price).round(),
+            valid: true,
+            source: source.clone(),
+        }
+    } else {
+        LiveRate {
+            rate_999_per_10gram: 0.0,
+            rate_22kt_per_10gram: 0.0,
+            rate_18kt_per_10gram: 0.0,
+            valid: false,
+            source: "unknown".to_string(),
+        }
     }
 }
 
