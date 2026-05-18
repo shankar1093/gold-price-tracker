@@ -32,6 +32,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'python-backend', 'python-backend:8000', 'admin.mjw.co.in', 'bullion-api.mjw.co.in', 'bullion.mjw.co.in']
 
+CSRF_TRUSTED_ORIGINS = ['https://admin.mjw.co.in', 'https://bullion.mjw.co.in', 'https://bullion-api.mjw.co.in']
+
 
 # Application definition
 

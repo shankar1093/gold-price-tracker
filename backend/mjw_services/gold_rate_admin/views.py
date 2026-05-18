@@ -185,8 +185,17 @@ def manual_rate_update(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
+def api_login_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
+@api_login_required
 def create_booking(request):
     data = json.loads(request.body)
     quantity_grams = int(data.get("quantity_grams"))
@@ -223,6 +232,7 @@ def create_booking(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@api_login_required
 def confirm_booking(request, lock_id):
     with transaction.atomic():
         try:

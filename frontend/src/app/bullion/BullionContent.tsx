@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import PriceCard from '../../components/price_cards';
 
 interface LiveRate {
@@ -19,6 +20,8 @@ const GoldDivider = () => (
 );
 
 const BullionContent = () => {
+  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
   const [liveRate, setLiveRate] = useState<LiveRate | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [showDialog, setShowDialog] = useState(false);
@@ -31,6 +34,20 @@ const BullionContent = () => {
   const [lockedRate, setLockedRate] = useState<number | null>(null);
 
   useEffect(() => {
+    fetch('/api/bullion_auth_status')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.authenticated) {
+          router.replace('/bullion/login');
+        } else {
+          setAuthChecked(true);
+        }
+      })
+      .catch(() => router.replace('/bullion/login'));
+  }, [router]);
+
+  useEffect(() => {
+    if (!authChecked) return;
     const rustUrl = process.env.NEXT_PUBLIC_RUST_BACKEND_URL ?? 'http://localhost:8080';
     const es = new EventSource(`${rustUrl}/live_rate_stream`);
     es.onmessage = (event) => {
@@ -64,6 +81,8 @@ const BullionContent = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [showDialog]);
+
+  if (!authChecked) return null;
 
   const totalValue = liveRate ? (liveRate.rate_999_per_10gram / 10) * quantity : 0;
   const timerColor = timeLeft <= 10 ? '#ef4444' : timeLeft <= 20 ? '#f97316' : '#D1B000';

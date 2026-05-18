@@ -23,7 +23,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
         const response = await fetch(`${backendUrl}/gold_rate_admin/booking/lock/`,{
             method: 'POST',
-            headers: { 'Content-Type':'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                ...(req.headers.cookie ? { 'Cookie': req.headers.cookie } : {}),
+            },
             body: JSON.stringify({
                 quantity_grams,
                 customer_name
