@@ -29,6 +29,9 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+ARG NEXT_PUBLIC_RUST_BACKEND_URL=http://localhost:8080
+ENV NEXT_PUBLIC_RUST_BACKEND_URL=$NEXT_PUBLIC_RUST_BACKEND_URL
+
 # Build the application
 RUN --mount=type=cache,target=/root/.npm \
     if [ -f yarn.lock ]; then yarn run build; \

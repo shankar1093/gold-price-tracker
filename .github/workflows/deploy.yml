@@ -96,6 +96,7 @@ jobs:
       run: |
         docker buildx build --no-cache --platform linux/amd64 \
           -f frontend/Dockerfile \
+          --build-arg NEXT_PUBLIC_RUST_BACKEND_URL=https://bullion-api.mjw.co.in \
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:${{ env.COMMIT_HASH }} \
           -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}-frontend:latest \
           --push frontend
