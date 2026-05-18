@@ -250,7 +250,7 @@ def confirm_booking(request, lock_id):
 
         inventory = MetalInventory.objects.select_for_update().get(metal='gold_999')
         inventory.reserved_grams -= lock.quantity_grams
-        inventory.available_grams -= lock.quantity_grams
+        inventory.committed_grams += lock.quantity_grams
         inventory.save()
 
         lock.status = 'confirmed'

@@ -1,10 +1,31 @@
 from django.contrib import admin
+from django.db import transaction
 from .models import Rate, Photo, BookingLock, MetalInventory
 
 
 @admin.action(description='Mark selected bookings as delivered')
 def mark_delivered(modeladmin, request, queryset):
-    queryset.filter(status='confirmed').update(status='delivered')
+    with transaction.atomic():
+        confirmed = queryset.filter(status='confirmed')
+        total = sum(confirmed.values_list('quantity_grams', flat=True))
+        if total > 0:
+            inventory = MetalInventory.objects.select_for_update().get(metal='gold_999')
+            inventory.committed_grams -= total
+            inventory.available_grams -= total
+            inventory.save()
+        confirmed.update(status='delivered')
+
+
+@admin.action(description='Cancel selected confirmed bookings')
+def cancel_confirmed(modeladmin, request, queryset):
+    with transaction.atomic():
+        confirmed = queryset.filter(status='confirmed')
+        total = sum(confirmed.values_list('quantity_grams', flat=True))
+        if total > 0:
+            inventory = MetalInventory.objects.select_for_update().get(metal='gold_999')
+            inventory.committed_grams -= total
+            inventory.save()
+        confirmed.update(status='cancelled')
 
 
 @admin.register(BookingLock)
@@ -12,13 +33,13 @@ class BookingLockAdmin(admin.ModelAdmin):
     list_display = ['id', 'customer_name', 'quantity_grams', 'rate_999', 'total_value', 'status', 'created_at', 'expires_at']
     list_filter = ['status']
     ordering = ['-created_at']
-    actions = [mark_delivered]
+    actions = [mark_delivered, cancel_confirmed]
     readonly_fields = ['rate_999', 'quantity_grams', 'customer_name', 'created_at', 'expires_at', 'total_value']
 
 
 @admin.register(MetalInventory)
 class MetalInventoryAdmin(admin.ModelAdmin):
-    list_display = ['metal', 'available_grams', 'reserved_grams', 'free_grams']
+    list_display = ['metal', 'available_grams', 'reserved_grams', 'committed_grams', 'free_grams']
 
 
 @admin.register(Rate)

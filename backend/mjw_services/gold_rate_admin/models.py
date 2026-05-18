@@ -44,13 +44,14 @@ class Rate(models.Model):
         ordering = ["-date"]
 
 class MetalInventory(models.Model):
-    metal = models.CharField(max_length=20)  # "gold_999"
-    available_grams = models.IntegerField()   # what you're willing to sell today
-    reserved_grams = models.IntegerField(default=0)  # locked but not confirmed yet
-    
+    metal = models.CharField(max_length=20)       # "gold_999"
+    available_grams = models.IntegerField()        # physical stock you have
+    reserved_grams = models.IntegerField(default=0)   # locked, pending confirmation
+    committed_grams = models.IntegerField(default=0)  # confirmed, not yet delivered
+
     @property
     def free_grams(self):
-        return self.available_grams - self.reserved_grams
+        return self.available_grams - self.reserved_grams - self.committed_grams
 
 class BookingLock(models.Model):
     rate_999 = models.IntegerField()
