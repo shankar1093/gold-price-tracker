@@ -56,6 +56,23 @@ services:
       db:
         condition: service_healthy
 
+  lock-cleanup:
+    image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-python-backend:latest
+    environment:
+      DATABASE_URL: postgres://rate_service:${DB_PASSWORD}@db:5432/mjw
+      POSTGRES_USER: rate_service
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mjw
+      DB_HOST: db
+    command: >
+      sh -c "while true; do python manage.py release_expired_locks; sleep 300; done"
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+
   frontend:
     image: 263095946180.dkr.ecr.ap-south-1.amazonaws.com/gold-price-tracker-frontend:latest
     environment:
