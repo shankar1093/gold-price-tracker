@@ -31,7 +31,7 @@ export default function BullionLogin() {
       });
 
       if (res.ok) {
-        router.push('/bullion');
+        window.location.href = '/bullion';
       } else {
         setError('Invalid username or password.');
       }
