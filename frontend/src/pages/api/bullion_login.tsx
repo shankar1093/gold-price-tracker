@@ -24,10 +24,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(response.status).json(data);
     }
 
-    // Forward the Django session cookie to the browser
-    const setCookie = response.headers.get('set-cookie');
-    if (setCookie) {
-      res.setHeader('Set-Cookie', setCookie);
+    // Forward Django session cookies to the browser
+    // getSetCookie() returns each Set-Cookie header as a separate array entry
+    const cookies = response.headers.getSetCookie?.() ?? [];
+    if (cookies.length > 0) {
+      res.setHeader('Set-Cookie', cookies);
     }
 
     return res.status(200).json(data);
