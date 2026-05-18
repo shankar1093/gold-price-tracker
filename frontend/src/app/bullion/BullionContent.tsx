@@ -56,7 +56,7 @@ const BullionContent = () => {
     };
     es.onerror = () => es.close();
     return () => es.close();
-  }, []);
+  }, [authChecked]);
 
   // Start timer when dialog opens, clear when it closes
   useEffect(() => {
