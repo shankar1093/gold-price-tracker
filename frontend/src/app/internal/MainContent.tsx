@@ -24,7 +24,7 @@ const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt,
       <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl">
         <div className="flex flex-col gap-4 w-full lg:w-1/2">
           <PriceCard title="24kt Gold Price (with GST)"  price={gold24kt * 1.03} />
-          <PriceCard title="24kt Gold Price (Retail)"    price={gold24kt / 1.03} />
+          <PriceCard title="24kt Gold Price (Retail)"    price={gold24kt} />
           <PriceCard title="22kt Gold Price"             price={gold22kt} />
           <PriceCard title="Gold Buy Back (22kt)"        price={gold22kt - gold22kt * 0.1} />
           <PriceCard title="18kt Gold Price"             price={gold18kt} />
