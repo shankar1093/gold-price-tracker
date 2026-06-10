@@ -96,9 +96,9 @@ def update_metal_rate():
         if not rate.get("valid"):
             raise ValueError("live_rate returned invalid=false — no adjudicated price available")
 
-        gold24ktPrice = rate["rate_999_per_gram"]
-        gold22ktPrice = rate["rate_22kt_per_gram"]
-        gold18ktPrice = rate["rate_18kt_per_gram"]
+        gold24ktPrice = rate["rate_999_per_10gram"] / 10
+        gold22ktPrice = rate["rate_22kt_per_10gram"] / 10
+        gold18ktPrice = rate["rate_18kt_per_10gram"] / 10
 
         adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.008)
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.011)
