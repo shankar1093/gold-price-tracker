@@ -9,19 +9,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
-        expired_locks = BookingLock.objects.filter(status='pending', expires_at__lt=now)
-        count = expired_locks.count()
-
-        if count == 0:
-            self.stdout.write('No expired locks to release.')
-            return
 
         with transaction.atomic():
+            expired_locks = (
+                BookingLock.objects
+                .select_for_update(skip_locked=True)
+                .filter(status='pending', expires_at__lt=now)
+            )
+            grams_to_release = sum(expired_locks.values_list('quantity_grams', flat=True))
+            count = len(expired_locks)
+
+            if count == 0:
+                self.stdout.write('No expired locks to release.')
+                return
+
+            expired_locks.update(status='expired')
+
             inventory = MetalInventory.objects.select_for_update().get(metal='gold_999')
-            for lock in expired_locks:
-                inventory.reserved_grams -= lock.quantity_grams
-                lock.status = 'expired'
-                lock.save()
+            inventory.reserved_grams -= grams_to_release
             inventory.save()
 
         self.stdout.write(self.style.SUCCESS(f'Released {count} expired lock(s).'))
