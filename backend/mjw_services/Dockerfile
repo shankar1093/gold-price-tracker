@@ -29,13 +29,12 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Copy and set permissions for scripts
-COPY wait-for-it.sh /wait-for-it.sh
-COPY entrypoint.sh /usr/src/app/entrypoint.sh
-RUN chmod +x /wait-for-it.sh /usr/src/app/entrypoint.sh
+COPY wait-for-it.sh /app/wait-for-it.sh
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/wait-for-it.sh /app/entrypoint.sh
 
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Use wait-for-it in the entrypoint
-ENTRYPOINT ["./wait-for-it.sh", "db:5432", "./entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/app/wait-for-it.sh", "db:5432", "/app/entrypoint.sh"]
+CMD ["gunicorn", "mjw_services.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
