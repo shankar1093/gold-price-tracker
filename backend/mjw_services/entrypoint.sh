@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-env | grep -E '^POSTGRES_|^DB_PASSWORD' | sed 's/^/export /' > /tmp/env_vars.sh
+env | grep -E '^POSTGRES_|^DB_PASSWORD|^DB_HOST' | sed 's/^/export /' > /tmp/env_vars.sh
 
 echo "Waiting for PostgreSQL..."
 until PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q'; do
