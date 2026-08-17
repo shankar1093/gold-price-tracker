@@ -8,6 +8,7 @@ interface MainContentProps {
   gold18kt: number;
   gold22kt: number;
   gold24kt: number;
+  gold24kt9999: number;
   silver: number;
   date: string;
   images: string[];
@@ -21,7 +22,7 @@ const GoldDivider = () => (
   </div>
 );
 
-const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt, silver, date, images }) => {
+const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt, gold24kt9999, silver, date, images }) => {
   return (
     <main className="flex flex-col items-center p-4 sm:p-6 lg:p-10 xl:p-12 2xl:p-16">
       <div className="w-full max-w-7xl flex flex-col gap-6">
@@ -52,6 +53,7 @@ const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt,
         <div className="flex flex-col lg:flex-row gap-6 w-full">
 
           <div className="flex flex-col gap-3 w-full lg:w-1/2">
+            <PriceCard title="24kt Gold Price (99.99)" price={gold24kt9999} />
             <PriceCard title="24kt Gold Price" price={gold24kt} />
             <PriceCard title="22kt Gold Price" price={gold22kt} />
             <PriceCard title="18kt Gold Price" price={gold18kt} />

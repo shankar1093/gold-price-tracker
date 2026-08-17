@@ -8,6 +8,7 @@ function price_adjustment(price: number) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let rate_22kt = null;
   let rate_24kt = null;
+  let rate_24kt_9999 = null;
   let rate_18kt = null;
   let rate_silver = null;
 
@@ -22,6 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     rate_18kt = data.rate_18kt;
     rate_22kt = data.rate_22kt;
     rate_24kt = data.rate_24kt;
+    rate_24kt_9999 = data.rate_24kt_9999;
     rate_silver = data.rate_silver;
   } catch (error) {
     console.error('Error fetching gold price data:', error);
@@ -32,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     gold18kt: rate_18kt,
     gold22kt: rate_22kt,
     gold24kt: rate_24kt,
+    gold24kt9999: rate_24kt_9999,
     silver: rate_silver,
     date: new Date().toLocaleDateString("en-IN"),
   });

@@ -45,6 +45,7 @@ def get_metal_rates(request):
             "date": rate.date,
             "rate_22kt": rate.rate_22kt,
             "rate_24kt": rate.rate_24kt,
+            "rate_24kt_9999": rate.rate_24kt_9999,
             "rate_18kt": rate.arihant_rate_18kt,
             "rate_silver": rate.rate_silver,
             "arihant_rate_22kt": rate.arihant_rate_22kt,
@@ -129,6 +130,7 @@ def manual_rate_update(request):
                 "rate_18kt": data.get("rate_18kt", 7500),
                 "rate_22kt": data.get("rate_22kt", 6850),
                 "rate_24kt": data.get("rate_24kt", 7500),
+                "rate_24kt_9999": data.get("rate_24kt_9999", 7500),
                 "rate_silver": data.get("rate_silver", 106),
                 "arihant_rate_18kt": data.get("arihant_rate_18kt", 7500),
                 "arihant_rate_22kt": data.get("arihant_rate_22kt", 6850),
@@ -147,6 +149,8 @@ def manual_rate_update(request):
                 rate.rate_22kt = data["rate_22kt"]
             if "rate_24kt" in data:
                 rate.rate_24kt = data["rate_24kt"]
+            if "rate_24kt_9999" in data:
+                rate.rate_24kt_9999 = data["rate_24kt_9999"]
             if "rate_silver" in data:
                 rate.rate_silver = data["rate_silver"]
             if "arihant_rate_18kt" in data:
@@ -171,6 +175,7 @@ def manual_rate_update(request):
                     "rate_18kt": rate.rate_18kt,
                     "rate_22kt": rate.rate_22kt,
                     "rate_24kt": rate.rate_24kt,
+                    "rate_24kt_9999": rate.rate_24kt_9999,
                     "rate_silver": rate.rate_silver,
                     "arihant_rate_18kt": rate.arihant_rate_18kt,
                     "arihant_rate_22kt": rate.arihant_rate_22kt,
