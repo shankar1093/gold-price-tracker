@@ -128,10 +128,11 @@ fn adjudicate(prices: &[GoldPrice]) -> LiveRate {
             let is_gold = desc.contains("gold") || id.starts_with("gold") || id.starts_with("gld");
             let is_silver = desc.contains("silver") || id.contains("sil");
             let is_plat = desc.contains("plat") || id.contains("plat");
-            let bullion_source = p.source.to_lowercase();
+            // Safari often stalls on dated product lines and anchors the lowest ask.
+            let is_stale_safari = p.source == "safari";
             // for RSBL: allow only Mumbai spot entries
             let is_rsbl_non_mumbai = p.source == "rsbl" && !id.contains("mum");
-            is_999 && is_gold && !is_silver && !is_plat && !is_coin && !is_rsbl_non_mumbai && p.ask != "-"
+            is_999 && is_gold && !is_silver && !is_plat && !is_coin && !is_stale_safari && !is_rsbl_non_mumbai && p.ask != "-"
         })
         .filter_map(|p| {
             let ask: f64 = p.ask.parse().ok()?;
