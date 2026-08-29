@@ -44,7 +44,7 @@ class MetalInventoryAdmin(admin.ModelAdmin):
 
 @admin.register(Rate)
 class RateAdmin(admin.ModelAdmin):
-    list_display = ['date', 'rate_22kt', 'rate_24kt', 'rate_18kt', 'rate_silver', 'is_manual_override', 'updated_at']
+    list_display = ['date', 'rate_22kt', 'rate_24kt', 'rate_24kt_9999', 'rate_18kt', 'rate_silver', 'is_manual_override', 'updated_at']
     list_filter = ['is_manual_override']
     ordering = ['-date']
 

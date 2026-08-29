@@ -52,6 +52,7 @@ const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt,
         <div className="flex flex-col lg:flex-row gap-6 w-full">
 
           <div className="flex flex-col gap-3 w-full lg:w-1/2">
+            <PriceCard title="MMTC Rate (99.99)" price={gold24kt + 100} />
             <PriceCard title="24kt Gold Price" price={gold24kt} />
             <PriceCard title="22kt Gold Price" price={gold22kt} />
             <PriceCard title="18kt Gold Price" price={gold18kt} />

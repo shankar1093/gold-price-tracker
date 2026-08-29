@@ -28,6 +28,7 @@ class Rate(models.Model):
     rate_18kt = models.IntegerField(default=7500)
     rate_22kt = models.IntegerField()
     rate_24kt = models.IntegerField()
+    rate_24kt_9999 = models.IntegerField(default=7500)
     rate_silver = models.IntegerField(default=106)
     arihant_rate_22kt = models.IntegerField(default=6850)
     arihant_rate_24kt = models.IntegerField(default=7500)

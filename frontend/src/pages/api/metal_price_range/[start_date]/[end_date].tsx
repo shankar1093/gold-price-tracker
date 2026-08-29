@@ -4,6 +4,7 @@ interface MetalRate {
   date: string;
   rate_22kt: number;
   rate_24kt: number;
+  rate_24kt_9999: number;
   rate_18kt: number;
   rate_silver: number;
   arihant_rate_22kt: number;
@@ -41,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         date: rate.date,
         rate_22kt: rate.rate_22kt,
         rate_24kt: rate.rate_24kt,
+        rate_24kt_9999: rate.rate_24kt_9999,
         rate_18kt: rate.rate_18kt,
         rate_silver: rate.rate_silver,
         arihant_rate_22kt: rate.arihant_rate_22kt,

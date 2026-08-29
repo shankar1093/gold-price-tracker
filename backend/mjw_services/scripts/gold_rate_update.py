@@ -78,6 +78,7 @@ def update_metal_rate():
         "rate_18kt": None,
         "rate_22kt": None,
         "rate_24kt": None,
+        "rate_24kt_9999": None,
         "rate_silver": None,
         "arihant_rate_22kt": None,
         "arihant_rate_24kt": None,
@@ -104,10 +105,12 @@ def update_metal_rate():
         adjustedGold18ktPrice = price_adjustment(gold18ktPrice * 1.008)
         adjustedGold22ktPrice = price_adjustment(gold22ktPrice * 1.011)
         adjustedGold24ktPrice = price_adjustment(gold24ktPrice * 1.02)  # Increased by 2% since 18/6/26, since bullion dealers are giving a discount on spot
+        adjustedGold24kt9999Price = price_adjustment(gold24ktPrice * 1.05)  # 99.99 gold priced at 5% over spot
 
         metal_prices["rate_18kt"] = math.floor(adjustedGold18ktPrice)
         metal_prices["rate_22kt"] = math.floor(adjustedGold22ktPrice)
         metal_prices["rate_24kt"] = math.floor(adjustedGold24ktPrice)
+        metal_prices["rate_24kt_9999"] = math.floor(adjustedGold24kt9999Price)
         metal_prices["arihant_rate_22kt"] = math.floor(gold22ktPrice)
         metal_prices["arihant_rate_24kt"] = math.floor(gold24ktPrice)
         metal_prices["arihant_rate_18kt"] = math.floor(gold18ktPrice)
@@ -165,6 +168,7 @@ def update_metal_rate():
             "rate_18kt": metal_prices["rate_18kt"],
             "rate_22kt": metal_prices["rate_22kt"],
             "rate_24kt": metal_prices["rate_24kt"],
+            "rate_24kt_9999": metal_prices["rate_24kt_9999"],
             "rate_silver": metal_prices["rate_silver"],
             "arihant_rate_22kt": metal_prices["arihant_rate_22kt"],
             "arihant_rate_24kt": metal_prices["arihant_rate_24kt"],

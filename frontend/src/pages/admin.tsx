@@ -5,6 +5,7 @@ interface RateData {
   rate_18kt: number;
   rate_22kt: number;
   rate_24kt: number;
+  rate_24kt_9999: number;
   rate_silver: number;
   arihant_rate_18kt: number;
   arihant_rate_22kt: number;
@@ -26,6 +27,7 @@ const AdminPage = () => {
     rate_18kt: 0,
     rate_22kt: 0,
     rate_24kt: 0,
+    rate_24kt_9999: 0,
     rate_silver: 0,
     arihant_rate_18kt: 0,
     arihant_rate_22kt: 0,
@@ -66,6 +68,7 @@ const AdminPage = () => {
         rate_18kt: data.rate_18kt || 0,
         rate_22kt: data.rate_22kt || 0,
         rate_24kt: data.rate_24kt || 0,
+        rate_24kt_9999: data.rate_24kt_9999 || 0,
         rate_silver: data.rate_silver || 0,
         arihant_rate_18kt: data.arihant_rate_18kt || 0,
         arihant_rate_22kt: data.arihant_rate_22kt || 0,
@@ -309,6 +312,19 @@ const AdminPage = () => {
                     id="rate_24kt"
                     value={rateData.rate_24kt}
                     onChange={(e) => handleInputChange('rate_24kt', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="rate_24kt_9999" className="block text-sm font-medium mb-2">
+                    24kt Gold - 99.99 (₹)
+                  </label>
+                  <input
+                    type="number"
+                    id="rate_24kt_9999"
+                    value={rateData.rate_24kt_9999}
+                    onChange={(e) => handleInputChange('rate_24kt_9999', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   />
