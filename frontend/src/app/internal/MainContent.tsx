@@ -26,7 +26,7 @@ const MainContent: React.FC<MainContentProps> = ({ gold18kt, gold22kt, gold24kt,
           <PriceCard title="24kt Gold Price (with GST)"  price={gold24kt * 1.03} />
           <PriceCard title="24kt Gold Price (Retail)"    price={gold24kt} />
           <PriceCard title="22kt Gold Price"             price={gold22kt} />
-          <PriceCard title="Gold Buy Back (22kt)"        price={gold22kt - gold22kt * 0.1} />
+          <PriceCard title="Gold Buy Back (22kt)"        price={gold22kt - gold22kt * 0.12} />
           <PriceCard title="18kt Gold Price"             price={gold18kt} />
           <PriceCard title="Silver Price"                price={silver} />
           <PriceCard title="Diamond Price"               price={70000} />
